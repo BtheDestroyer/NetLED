@@ -19,7 +19,7 @@ def tee(message : str):
         open_file()
     if is_open():
         file.write(message)
-    print(message)
+    print(message, end="")
 
 def info(message : str):
     if config["levels"]["info"]:
