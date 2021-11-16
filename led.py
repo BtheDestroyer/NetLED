@@ -1,4 +1,4 @@
-from rpi_ws281x import *
+import rpi_ws281x
 import log
 
 import cfg
@@ -9,7 +9,7 @@ def init():
     log.info("Initializing LED strip")
     if strip is None:
         log.warning("Strip already initialized. Reinitializing")
-    strip = Adafruit_NeoPixel(
+    strip = rpi_ws281x.PixelStrip(
         config["count"],
         config["pin"],
         config["freq"],
@@ -17,12 +17,15 @@ def init():
         config["invert"],
         config["brightness"],
         config["channel"])
+    if strip is None:
+        log.error("Failed to construct led strip!")
+        return
     strip.begin()
 
 def is_initialized():
     return strip is not None
 
-def set_pixel(index : int, color : Color, show : bool = False):
+def set_pixel(index : int, color : rpi_ws281x.Color, show : bool = False):
     if not is_initialized():
         log.error("Tried to set color of pixel when strip is not initialized")
         log.error("Call `led.init()` first!")
