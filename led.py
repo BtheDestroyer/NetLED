@@ -6,24 +6,6 @@ config = cfg.config["led"]
 initialized = False
 strip = None
 
-log.info("Initializing LED strip")
-if is_initialized():
-    log.warning("Strip already initialized. Reinitializing")
-strip = rpi_ws281x.PixelStrip(
-    config["count"],
-    config["pin"],
-    config["freq"],
-    config["dma"],
-    config["invert"],
-    config["brightness"],
-    config["channel"])
-if strip is None:
-    log.error("Failed to construct LED strip!")
-else:
-    strip.begin()
-    initialized = True
-    log.info("Initialized LEDs!")
-
 def is_initialized():
     return initialized 
 
@@ -42,3 +24,22 @@ def update():
         log.error("Tried to update when strip is not initialized")
         return
     strip.show()
+
+# Initialization
+log.info("Initializing LED strip")
+if is_initialized():
+    log.warning("Strip already initialized. Reinitializing")
+strip = rpi_ws281x.PixelStrip(
+    config["count"],
+    config["pin"],
+    config["freq"],
+    config["dma"],
+    config["invert"],
+    config["brightness"],
+    config["channel"])
+if strip is None:
+    log.error("Failed to construct LED strip!")
+else:
+    strip.begin()
+    initialized = True
+    log.info("Initialized LEDs!")
