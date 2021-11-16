@@ -6,7 +6,7 @@ file = None
 def is_open():
     return file is not None
 
-def open(path : str = logpath):
+def open_file(path : str = logpath):
     if is_open():
         file.close()
     logpath = path
@@ -16,7 +16,7 @@ def tee(message : str):
     if not message.endswith("\n"):
         message += "\n"
     if not is_open():
-        open()
+        open_file()
     if is_open():
         file.write(message)
     print(message)
