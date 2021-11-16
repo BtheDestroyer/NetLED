@@ -15,6 +15,8 @@ def open(path : str = logpath):
 def tee(message : str):
     if not message.endswith("\n"):
         message += "\n"
+    if not is_open():
+        open()
     if is_open():
         file.write(message)
     print(message)
