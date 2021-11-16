@@ -3,11 +3,12 @@ import log
 
 import cfg
 config = cfg.config["led"]
+initialized = False
 strip = None
 
 def init():
     log.info("Initializing LED strip")
-    if strip is None:
+    if is_initialized():
         log.warning("Strip already initialized. Reinitializing")
     strip = rpi_ws281x.PixelStrip(
         config["count"],
@@ -21,9 +22,10 @@ def init():
         log.error("Failed to construct led strip!")
         return
     strip.begin()
+    initialized = True
 
 def is_initialized():
-    return strip is not None
+    return initialized 
 
 def set_pixel(index : int, color : rpi_ws281x.Color, show : bool = False):
     if not is_initialized():
