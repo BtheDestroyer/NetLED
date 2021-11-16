@@ -7,13 +7,13 @@ strip = None
 
 def init():
     strip = Adafruit_NeoPixel(
-        config["led"]["count"],
-        config["led"]["pin"],
-        config["led"]["freq"],
-        config["led"]["dma"],
-        config["led"]["invert"],
-        config["led"]["brightness"],
-        config["led"]["channel"])
+        config["count"],
+        config["pin"],
+        config["freq"],
+        config["dma"],
+        config["invert"],
+        config["brightness"],
+        config["channel"])
     strip.begin()
 
 def set_pixel(index : int, color : Color, show : bool = False):
