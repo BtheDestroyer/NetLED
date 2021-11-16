@@ -1,0 +1,16 @@
+led:
+  count: 240
+  pin: 18
+  freq: 800000 #800khz
+  dma: 10
+  brightness: 255
+  invert: False
+  channel: 0
+
+log:
+  path: "netled.log"
+  levels:
+    info: True
+    warning: True
+    error: True
+    critical: True
