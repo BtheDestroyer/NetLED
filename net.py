@@ -53,10 +53,10 @@ class PacketManager:
 
     @staticmethod
     def handle_buffer(buffer : bytes):
-        if buffer.count == 0:
+        if len(buffer) == 0:
             log.error("Buffer given to PacketManager is empty")
             return
-        if PacketManager.packet_types.count < buffer[0]:
+        if len(PacketManager.packet_types) < buffer[0]:
             log.error("Buffer given to PacketManager is for a type of packet that is not managed")
             return
         return PacketManager.packet_types[buffer[0]].from_bytes(buffer[1:])
