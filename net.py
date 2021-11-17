@@ -2,7 +2,7 @@ import log, project
 import socket
 
 import cfg
-config = cfg.config["led"]
+config = cfg.config["net"]
 packet_size = config["packet_size"]
 default_port = config["default_port"]
 
