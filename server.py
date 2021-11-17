@@ -4,22 +4,32 @@ import log, project, net, led
 import argparse
 import _thread, threading, socket
 
+connection_lock = threading.Lock()
+connections = []
 running = True
 
 def handle_packet():
     pass
 
 def handle_connection(connection, addr):
+    connection_lock.acquire()
+    connections.append(connection)
+    connection_id = len(connections) - 1
+    connection_lock.release()
     connection.setblocking(True)
     try:
         while True:
+            log.info("[%d] Awaiting packet..." % (connection_id))
             packet = connection.recv(net.packet_size)
             if len(packet) > 0:
-                log.info("Handling packet: %s" % (packet))
+                log.info("[%d] Handling packet: %s" % (connection_id, packet))
                 net.PacketManager.handle_buffer(packet)
     except socket.timeout:
         pass
     log.info("Connection closed with %s" % (addr[0]))
+    connection_lock.acquire()
+    connections[connection_id] = None
+    connection_lock.release()
 
 def main():
     log.info("Starting server for " + project.name + " v" + project.version)
@@ -28,13 +38,13 @@ def main():
     args = parser.parse_args()
     s = net.host_socket(args.port)
     if s is None:
-        log.error("Failed to host!")
+        log.error("[MASTER] Failed to host!")
         return
     while running:
         c, addr = s.accept()
-        log.info("New connection from %s" % (addr[0]))
+        log.info("[MASTER] New connection from %s" % (addr[0]))
         _thread.start_new_thread(handle_connection, (c, addr))
-    log.info("Closing server...")
+    log.info("[MASTER] Closing server...")
     s.close()
     log.info("Done!")
 
