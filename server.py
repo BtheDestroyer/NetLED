@@ -18,7 +18,8 @@ def handle_connection(connection, addr):
                 log.info("Handling packet: %s" % (packet))
                 net.PacketManager.handle_buffer(packet)
     except socket.timeout:
-        log.info("Connection closed with %s" % (addr[0]))
+        pass
+    log.info("Connection closed with %s" % (addr[0]))
 
 def main():
     log.info("Starting server for " + project.name + " v" + project.version)
