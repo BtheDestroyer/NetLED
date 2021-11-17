@@ -14,3 +14,7 @@ log:
     warning: True
     error: True
     critical: True
+
+net:
+  packet_size: 1024
+  default_port: 2425

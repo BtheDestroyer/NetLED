@@ -1,7 +1,11 @@
+import threading
+
 import cfg
 config = cfg.config["log"]
 logpath = config["path"]
 file = None
+
+log_lock = threading.Lock()
 
 def is_open():
     return file is not None
@@ -13,6 +17,7 @@ def open_file(path : str = logpath):
     file = open(path, "w")
 
 def tee(message : str):
+    log_lock.acquire()
     if not message.endswith("\n"):
         message += "\n"
     if not is_open():
@@ -20,6 +25,7 @@ def tee(message : str):
     if is_open():
         file.write(message)
     print(message, end="")
+    log_lock.release()
 
 def info(message : str):
     if config["levels"]["info"]:

@@ -1,5 +1,5 @@
 import rpi_ws281x
-import log
+import log, net
 
 import cfg
 config = cfg.config["led"]
@@ -43,6 +43,24 @@ def update():
         log.error("Tried to update when strip is not initialized")
         return
     strip.show()
+
+class Set_Pixel_Packet(net.Packet):
+    def __init__(self, pixel = 0, color = 0):
+        self.pixel = 0
+        self.color = 0
+
+    @staticmethod
+    def from_bin(buffer : bytes):
+        packet = Set_Pixel_Packet()
+        packet.pixel = int.from_bytes(buffer)
+        buffer = buffer[len(packet.pixel.to_bytes()):]
+        packet.color = int.from_bytes(buffer)
+
+    def to_bin(self):
+        buffer = bytes(net.PacketManager.get_packet_id(self))
+        buffer += self.pixel.to_bytes()
+        buffer += self.color.to_bytes()
+net.PacketManager.register(Set_Pixel_Packet)
 
 # Initialization
 log.info("Initializing LED strip")
