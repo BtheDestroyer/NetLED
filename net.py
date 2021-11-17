@@ -42,7 +42,7 @@ class PacketManager:
     @staticmethod
     def register(packet):
         PacketManager.packet_types.append(packet)
-        return PacketManager.packet_types.count - 1
+        return PacketManager.packet_types.count() - 1
 
     @staticmethod
     def get_packet_id(packet):
