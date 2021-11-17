@@ -30,10 +30,10 @@ class Packet:
         pass
 
     @staticmethod
-    def from_bin(buffer : bytes):
+    def from_bytes(buffer : bytes):
         raise NotImplementedError()
 
-    def to_bin(self):
+    def to_bytes(self):
         raise NotImplementedError()
 
 class PacketManager:
@@ -59,5 +59,5 @@ class PacketManager:
         if PacketManager.packet_types.count < buffer[0]:
             log.error("Buffer given to PacketManager is for a type of packet that is not managed")
             return
-        return PacketManager.packet_types[buffer[0]].from_bin(buffer[1:])
+        return PacketManager.packet_types[buffer[0]].from_bytes(buffer[1:])
 

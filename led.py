@@ -50,13 +50,13 @@ class Set_Pixel_Packet(net.Packet):
         self.color = 0
 
     @staticmethod
-    def from_bin(buffer : bytes):
+    def from_bytes(buffer : bytes):
         packet = Set_Pixel_Packet()
         packet.pixel = int.from_bytes(buffer)
         buffer = buffer[len(packet.pixel.to_bytes()):]
         packet.color = int.from_bytes(buffer)
 
-    def to_bin(self):
+    def to_bytes(self):
         buffer = bytes(net.PacketManager.get_packet_id(self))
         buffer += self.pixel.to_bytes()
         buffer += self.color.to_bytes()
