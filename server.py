@@ -11,7 +11,7 @@ running = True
 def handle_packet():
     pass
 
-def handle_connection(connection):
+def handle_connection(connection, addr):
     connections_lock.acquire()
     connections.append(connection)
     connections_lock.release()
@@ -21,6 +21,7 @@ def handle_connection(connection):
             log.info("Handling packet: %s" % (packet))
             net.PacketManager.handle_buffer(packet)
     except socket.timeout:
+        log.info("Connection closed with %s" % (addr))
         connections_lock.acquire()
         connections.remove(connection)
         connections_lock.release()
@@ -37,7 +38,7 @@ def main():
     while running:
         c, addr = s.accept()
         log.info("New connection from %s" % (addr))
-        _thread.start_new_thread(handle_connection, (c,))
+        _thread.start_new_thread(handle_connection, (c, addr))
     log.info("Closing server...")
     s.close()
     log.info("Done!")
