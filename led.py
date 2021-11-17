@@ -57,9 +57,10 @@ class Set_Pixel_Packet(net.Packet):
         packet.color = int.from_bytes(buffer)
 
     def to_bytes(self):
-        buffer = bytes(net.PacketManager.get_packet_id(self))
+        buffer = net.PacketManager.get_packet_id(self).to_bytes()
         buffer += self.pixel.to_bytes()
         buffer += self.color.to_bytes()
+        return buffer
 net.PacketManager.register(Set_Pixel_Packet)
 
 # Initialization

@@ -4,27 +4,21 @@ import log, project, net, led
 import argparse
 import _thread, threading, socket
 
-connections_lock = threading.Lock()
-connections = []
 running = True
 
 def handle_packet():
     pass
 
 def handle_connection(connection, addr):
-    connections_lock.acquire()
-    connections.append(connection)
-    connections_lock.release()
+    connection.setblocking(True)
     try:
         while True:
             packet = connection.recv(net.packet_size)
-            log.info("Handling packet: %s" % (packet))
-            net.PacketManager.handle_buffer(packet)
+            if len(packet) > 0:
+                log.info("Handling packet: %s" % (packet))
+                net.PacketManager.handle_buffer(packet)
     except socket.timeout:
         log.info("Connection closed with %s" % (addr[0]))
-        connections_lock.acquire()
-        connections.remove(connection)
-        connections_lock.release()
 
 def main():
     log.info("Starting server for " + project.name + " v" + project.version)

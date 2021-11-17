@@ -56,8 +56,9 @@ class PacketManager:
         if len(buffer) == 0:
             log.error("Buffer given to PacketManager is empty")
             return
-        if len(PacketManager.packet_types) < buffer[0]:
+        packet_id = int.from_bytes(buffer)
+        if len(PacketManager.packet_types) < packet_id:
             log.error("Buffer given to PacketManager is for a type of packet that is not managed")
             return
-        return PacketManager.packet_types[buffer[0]].from_bytes(buffer[1:])
+        return PacketManager.packet_types[packet_id].from_bytes(buffer[len(int.to_bytes(packet_id)):])
 
