@@ -16,14 +16,14 @@ def handle_connection(connection, addr):
     connections.append(connection)
     connection_id = len(connections) - 1
     connection_lock.release()
-    connection.setblocking(True)
+    log.info("[%d] Awaiting packet..." % (connection_id))
     try:
         while True:
-            log.info("[%d] Awaiting packet..." % (connection_id))
             packet = connection.recv(net.packet_size)
             if len(packet) > 0:
                 log.info("[%d] Handling packet: %s" % (connection_id, packet))
                 net.PacketManager.handle_buffer(packet)
+                log.info("[%d] Awaiting packet..." % (connection_id))
     except socket.timeout:
         pass
     log.info("Connection closed with %s" % (addr[0]))
