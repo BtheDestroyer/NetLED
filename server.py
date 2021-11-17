@@ -18,6 +18,7 @@ def handle_connection(connection):
     try:
         while True:
             packet = connection.recv(net.packet_size)
+            log.info("Handling packet: %s" % (packet))
             net.PacketManager.handle_buffer(packet)
     except socket.timeout:
         connections_lock.acquire()
