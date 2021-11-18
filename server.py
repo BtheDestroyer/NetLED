@@ -77,7 +77,7 @@ def main():
                 c[3] = last_message_time
                 time_delta = time.time() - last_message_time
                 timeout = time_delta > net.config["connection_timeout"]
-                keep_alive &= requesting_keep_alive
+                keep_alive |= requesting_keep_alive
                 keep_alive &= timeout
                 give_focus = keep_alive and time_delta < 0.01
                 if len(packets) > 0:
