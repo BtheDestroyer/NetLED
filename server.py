@@ -68,7 +68,7 @@ def main():
                 keep_alive, timeout_count = handle_connection(*c)
                 c[3] = timeout_count
                 keep_alive &= timeout_count <= 10
-                give_focus = keep_alive and timeout_count == 0
+                give_focus = False #keep_alive and timeout_count == 0
                 if len(packets) > 0:
                     for packet in packets:
                         packet.execute()
