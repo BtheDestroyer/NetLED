@@ -58,6 +58,7 @@ def main():
 def sigint(sig, frame):
     global running
     running = False
+    log.info("Telling server to shut down...")
 
 if __name__ == "__main__":
     main()
