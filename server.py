@@ -80,12 +80,6 @@ def main():
                 keep_alive |= requesting_keep_alive
                 keep_alive &= not timeout
                 give_focus = keep_alive and time_delta < 0.01
-                if len(packets) > 0:
-                    packets_copy = packets.copy()
-                    packets.clear()
-                    for packet in packets_copy:
-                        packet.execute()
-                    led.main_thread_update()
             if not keep_alive:
                 reason = "Unknown reason"
                 if timeout:
@@ -94,6 +88,12 @@ def main():
                     reason = "Connection closed by the client"
                 log.info("[MASTER] Connection %d closed (%s)" % (c[0], reason))
                 connections.remove(c)
+        if len(packets) > 0:
+            packets_copy = packets.copy()
+            packets.clear()
+            for packet in packets_copy:
+                packet.execute()
+            led.main_thread_update()
     log.info("[MASTER] Closing server...")
     for thread in threads:
         thread.join()
