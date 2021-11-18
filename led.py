@@ -11,7 +11,7 @@ awaiting_show = False
 def is_initialized():
     return initialized
 
-def set_pixel(index : int, color : int, show : bool = False):
+def set_pixel(index : int, color : int, show_now : bool = False):
     if not is_initialized():
         log.error("Tried to set color of pixel when strip is not initialized")
         return
@@ -22,7 +22,7 @@ def set_pixel(index : int, color : int, show : bool = False):
     log.verbose("Setting pixel %d to (%d, %d, %d)" % (index, (color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF))
     global strip
     strip.setPixelColor(index, color)
-    if show:
+    if show_now:
         show()
 
 def set_pixels(start : int, count : int, color : rpi_ws281x.Color, show : bool = False):
