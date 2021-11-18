@@ -73,7 +73,7 @@ class Set_Pixel_Packet(net.Packet):
         log.info("Encoding self.color: %d" % (self.color))
         buffer += self.color.to_bytes(4, 'little')
         log.info("to_bytes result buffer: %s" % (buffer))
-        log.info("Encoding self.show: %b" % (self.show))
+        log.info("Encoding self.show: %s" % (self.show))
         buffer += self.show.to_bytes(1, 'little')
         log.info("to_bytes result buffer: %s" % (buffer))
         return buffer
