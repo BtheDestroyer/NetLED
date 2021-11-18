@@ -67,6 +67,22 @@ def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
 def streamaudio(s : socket.socket):
     speakers = audio.speaker_stream()
 
+def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : str):
+    r = int(r)
+    g = int(g)
+    b = int(b)
+    wait_ms = float(wait_ms)
+    length = int(length)
+    log.info("Pulsing...")
+    for i in range(led.config["count"] + length):
+        packet = led.Shift_Pixels_Packet(0, led.config["count"], 1).to_bytes()
+        if i < length:
+            packet += led.Set_Pixel_Packet(0, led.color(r, g, b)).to_bytes()
+        s.send(packet)
+        time.sleep(wait_ms / 1000.0)
+    time.sleep(1)
+    s.close()
+
 
 subcommands = {
     "demo": demo,
@@ -74,6 +90,7 @@ subcommands = {
     "setpixels": setpixels,
     "shiftpixels": shiftpixels,
     "streamaudio": streamaudio,
+    "pulse": pulse,
 }
 
 def main():
