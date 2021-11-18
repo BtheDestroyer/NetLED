@@ -60,10 +60,16 @@ def shift_pixels(start : int, count : int, shift : int, show_now : bool = False)
         start = start + count
     if shift > 0:
         for i in range(end, start, -1):
-            strip.setPixelColor(i, strip.getPixelColor(i - shift))
+            new_color = strip.getPixelColor(i - shift)
+            if i - shift < 0:
+                new_color = 0
+            strip.setPixelColor(i, new_color)
     elif shift < 0:
         for i in range(start, end):
-            strip.setPixelColor(i, strip.getPixelColor(i - shift))
+            new_color = strip.getPixelColor(i - shift)
+            if i - shift > config["count"]:
+                new_color = 0
+            strip.setPixelColor(i, new_color)
     if show_now:
         show()
 
