@@ -36,6 +36,7 @@ def demo(s : socket.socket):
     packet += led.Set_Pixel_Packet(1, rpi_ws281x.Color(0,0,0)).to_bytes()
     packet += led.Set_Pixel_Packet(2, rpi_ws281x.Color(0,0,0)).to_bytes()
     s.send(packet)
+    time.sleep(5)
     log.info("Closing socket...")
     s.close()
     log.info("Done!")
