@@ -10,7 +10,7 @@ running = True
 connections = []
 next_id = 0
 
-def handle_connection(connection_id, connection, addr):
+def handle_connection(connection_id, connection, addr, timeout_count):
     try:
         log.info("[%6d] Awaiting packet..." % (connection_id))
         buffer = connection.recv(net.buffer_size)
@@ -22,11 +22,11 @@ def handle_connection(connection_id, connection, addr):
                 log.info("[%6d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
                 packets.append(packet)
                 buffer = remainingbuffer
-            return True
+            return True, 0
         else:
             return False
     except socket.timeout:
-        return True
+        return True, timeout_count + 1
 
 def master_server(s : socket.socket):
     if s is None:
@@ -39,7 +39,7 @@ def master_server(s : socket.socket):
             log.info("[MASTER] New connection from %s" % (addr[0]))
             c.settimeout(1)
             global next_id
-            connections.append((next_id, c, addr))
+            connections.append([next_id, c, addr, 0])
             next_id += 1
     except socket.timeout:
         pass
@@ -56,8 +56,11 @@ def main():
     while running:
         master_server(master_socket)
         for c in connections:
-            if not handle_connection(*c):
+            keep_alive, timeout_count = handle_connection(*c)
+            if not keep_alive or timeout_count > 10:
                 connections.remove(c)
+            else:
+                c[3] = timeout_count
         if len(packets) > 0:
             for packet in packets:
                 packet.execute()
