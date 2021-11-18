@@ -4,6 +4,7 @@ import log, net
 import cfg
 config = cfg.config["led"]
 initialized = False
+global strip
 strip = None
 
 def is_initialized():
@@ -18,6 +19,7 @@ def set_pixel(index : int, color : int, show : bool = False):
     if index >= config["count"] or index < 0:
         log.error("Tried to set color of pixel %d hen the strip is only %d pixels long" % (index, config["count"]))
     log.verbose("Setting pixel %d to (%d, %d, %d)" % (index, (color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF))
+    global strip
     strip.setPixelColor(index, color)
     if show:
         update()
@@ -44,6 +46,7 @@ def update():
         log.error("Tried to update when strip is not initialized")
         return
     log.info("Showing strip")
+    global strip
     strip.show()
 
 class Set_Pixel_Packet(net.Packet):
