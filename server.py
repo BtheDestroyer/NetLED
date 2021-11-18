@@ -70,13 +70,15 @@ def main():
         master_server(master_socket)
         for c in connections:
             give_focus = True
-            keep_alive = True
+            keep_alive = False
+            timeout = False
             while give_focus:
-                keep_alive, last_message_time = handle_connection(*c)
+                requesting_keep_alive, last_message_time = handle_connection(*c)
                 c[3] = last_message_time
                 time_delta = time.time() - last_message_time
                 timeout = time_delta > net.config["connection_timeout"]
-                keep_alive &= not timeout
+                keep_alive &= requesting_keep_alive
+                keep_alive &= timeout
                 give_focus = keep_alive and time_delta < 0.01
                 if len(packets) > 0:
                     packets_copy = packets.copy()
