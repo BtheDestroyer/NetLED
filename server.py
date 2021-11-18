@@ -17,14 +17,15 @@ def handle_connection(connection, addr, connection_id):
             log.info("[%d] Awaiting packet..." % (connection_id))
             buffer = connection.recv(net.buffer_size)
             if len(buffer) > 0:
+                packet_lock.acquire()
+                global packets
                 while len(buffer) > 0:
                     log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
                     packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
                     log.info("[%d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
-                    packet_lock.acquire()
                     packets.append(packet)
-                    packet_lock.release()
                     buffer = remainingbuffer
+                packet_lock.release()
             else:
                 connection_alive = False
     except socket.timeout:
@@ -65,8 +66,8 @@ def main():
     args = parser.parse_args()
     master_thread =threading.Thread(target=master_server, args=(net.host_socket(args.port),))
     master_thread.start()
+    global packets
     while running:
-        global packets
         if len(packets) > 0:
             packet_lock.acquire()
             packets_copy = packets.copy()
@@ -74,7 +75,6 @@ def main():
             packet_lock.release()
             for packet in packets_copy:
                 packet.execute()
-        led.main_thread_update()
     master_thread.join()
     log.info("Done!")
 
