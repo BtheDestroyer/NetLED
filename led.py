@@ -64,10 +64,18 @@ class Set_Pixel_Packet(net.Packet):
         if packet_id is None:
             log.error("Couldn't get packet id for Set_Pixel_Packet")
             return
+        log.info("Encoding packet_id: %d" % (packet_id))
         buffer = packet_id.to_bytes(4, 'little')
+        log.info("to_bytes result buffer: %s" % (buffer))
+        log.info("Encoding self.pixel: %d" % (self.pixel))
         buffer += self.pixel.to_bytes(4, 'little')
+        log.info("to_bytes result buffer: %s" % (buffer))
+        log.info("Encoding self.color: %d" % (self.color))
         buffer += self.color.to_bytes(4, 'little')
+        log.info("to_bytes result buffer: %s" % (buffer))
+        log.info("Encoding self.show: %b" % (self.show))
         buffer += self.show.to_bytes(1, 'little')
+        log.info("to_bytes result buffer: %s" % (buffer))
         return buffer
 
     def execute(self):
