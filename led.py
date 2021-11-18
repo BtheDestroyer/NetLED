@@ -104,7 +104,7 @@ class Set_Pixel_Packet(net.Packet):
             log.error("Couldn't get packet id for Set_Pixel_Packet")
             return
         buffer = packet_id.to_bytes(4, 'little')
-        buffer += self.pixel.to_bytes(4, 'little')
+        buffer += self.pixel.to_bytes(4, 'little', signed=True)
         buffer += self.color.to_bytes(4, 'little')
         buffer += self.show.to_bytes(1, 'little')
         return buffer
@@ -123,9 +123,9 @@ class Set_Pixels_Packet(net.Packet):
     @staticmethod
     def from_bytes(buffer : bytes):
         packet = Set_Pixels_Packet()
-        packet.start = int.from_bytes(buffer[0:4], 'little')
+        packet.start = int.from_bytes(buffer[0:4], 'little', signed=True)
         log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
-        packet.count = int.from_bytes(buffer[4:8], 'little')
+        packet.count = int.from_bytes(buffer[4:8], 'little', signed=True)
         log.verbose("Decoded packet.count: %s => %d" % (buffer[0:4], packet.count))
         packet.color = int.from_bytes(buffer[8:12], 'little')
         log.verbose("Decoded packet.color: %s => %x" % (buffer[4:8], packet.color))
@@ -139,8 +139,8 @@ class Set_Pixels_Packet(net.Packet):
             log.error("Couldn't get packet id for Set_Pixel_Packet")
             return
         buffer = packet_id.to_bytes(4, 'little')
-        buffer += self.start.to_bytes(4, 'little')
-        buffer += self.count.to_bytes(4, 'little')
+        buffer += self.start.to_bytes(4, 'little', signed=True)
+        buffer += self.count.to_bytes(4, 'little', signed=True)
         buffer += self.color.to_bytes(4, 'little')
         buffer += self.show.to_bytes(1, 'little')
         return buffer
@@ -159,11 +159,11 @@ class Shift_Pixels_Packet(net.Packet):
     @staticmethod
     def from_bytes(buffer : bytes):
         packet = Shift_Pixels_Packet()
-        packet.start = int.from_bytes(buffer[0:4], 'little')
+        packet.start = int.from_bytes(buffer[0:4], 'little', signed=True)
         log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
-        packet.count = int.from_bytes(buffer[4:8], 'little')
+        packet.count = int.from_bytes(buffer[4:8], 'little', signed=True)
         log.verbose("Decoded packet.count: %s => %d" % (buffer[4:8], packet.count))
-        packet.shift = int.from_bytes(buffer[8:12], 'little')
+        packet.shift = int.from_bytes(buffer[8:12], 'little', signed=True)
         log.verbose("Decoded packet.shift: %s => %x" % (buffer[8:12], packet.shift))
         packet.show = bool.from_bytes(buffer[12:13], 'little')
         log.verbose("Decoded packet.show: %s => %s" % (buffer[12:13], packet.show))
@@ -175,9 +175,9 @@ class Shift_Pixels_Packet(net.Packet):
             log.error("Couldn't get packet id for Set_Pixel_Packet")
             return
         buffer = packet_id.to_bytes(4, 'little')
-        buffer += self.start.to_bytes(4, 'little')
-        buffer += self.count.to_bytes(4, 'little')
-        buffer += self.shift.to_bytes(4, 'little')
+        buffer += self.start.to_bytes(4, 'little', signed=True)
+        buffer += self.count.to_bytes(4, 'little', signed=True)
+        buffer += self.shift.to_bytes(4, 'little', signed=True)
         buffer += self.show.to_bytes(1, 'little')
         return buffer
 
