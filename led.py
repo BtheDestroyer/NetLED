@@ -66,7 +66,7 @@ class Set_Pixel_Packet(net.Packet):
         buffer += self.color.to_bytes()
         return buffer
 net.PacketManager.register(Set_Pixel_Packet)
-log.info("len(net.PacketManager.packet_types) = %d" % (len(net.PacketManager.packet_types)))
+log.info("len(net.packet_types) = %d" % (len(net.packet_types)))
 
 # Initialization
 log.info("Initializing LED strip")
