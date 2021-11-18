@@ -37,13 +37,7 @@ def handle_connection(connection, addr):
     connections[connection_id] = None
     connection_lock.release()
 
-def main():
-    signal.signal(signal.SIGINT, sigint)
-    log.info("Starting server for " + project.name + " v" + project.version)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
-    args = parser.parse_args()
-    s = net.host_socket(args.port)
+def master_server(s : socket.socket):
     s.settimeout(1)
     if s is None:
         log.error("[MASTER] Failed to host!")
@@ -59,6 +53,16 @@ def main():
             pass
     log.info("[MASTER] Closing server...")
     s.close()
+
+def main():
+    signal.signal(signal.SIGINT, sigint)
+    log.info("Starting server for " + project.name + " v" + project.version)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
+    args = parser.parse_args()
+    master_thread_id = _thread.start_new_thread(master_server, net.host_socket(args.port))
+    while running:
+        led.main_thread_update()
     log.info("Done!")
 
 def sigint(sig, frame):

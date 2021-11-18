@@ -6,6 +6,7 @@ config = cfg.config["led"]
 initialized = False
 global strip
 strip = None
+awaiting_show = False
 
 def is_initialized():
     return initialized
@@ -22,7 +23,7 @@ def set_pixel(index : int, color : int, show : bool = False):
     global strip
     strip.setPixelColor(index, color)
     if show:
-        update()
+        show()
 
 def set_pixels(start : int, count : int, color : rpi_ws281x.Color, show : bool = False):
     if not is_initialized():
@@ -39,15 +40,23 @@ def set_pixels(start : int, count : int, color : rpi_ws281x.Color, show : bool =
         for i in range(start + count, start):
             strip.setPixelColor(i, color)
     if show:
-        update()
+        show()
 
-def update():
+def show():
     if not is_initialized():
-        log.error("Tried to update when strip is not initialized")
+        log.error("Tried to show when strip is not initialized")
         return
     log.info("Showing strip")
-    global strip
-    strip.show()
+    global awaiting_show
+    awaiting_show = True
+
+def main_thread_update():
+    global awaiting_show
+    if awaiting_show:
+        awaiting_show = False
+        global strip
+        strip.show()
+
 
 class Set_Pixel_Packet(net.Packet):
     def __init__(self, pixel : int = 0, color : int = 0, show : bool = True):
