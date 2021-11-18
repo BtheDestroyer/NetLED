@@ -43,7 +43,7 @@ subcommands = {
 def main():
     log.info("Starting client for " + project.name + " v" + project.version)
     parser = argparse.ArgumentParser()
-    parser.add_argument("address", type=str, help="Address to connect to", const="localhost", nargs='?')
+    parser.add_argument("address", type=str, help="Address to connect to", default="localhost", const="localhost", nargs='?')
     parser.add_argument("subcommand", type=str, help="Command to send to the server", nargs='?', default="demo", const="demo")
     parser.add_argument("subarguments", type=str, help="Arguments for the subcommand", nargs='*')
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to connect with", default=net.default_port)
