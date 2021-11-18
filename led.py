@@ -1,6 +1,5 @@
 import rpi_ws281x
 import log, net
-import threading
 
 import cfg
 config = cfg.config["led"]
