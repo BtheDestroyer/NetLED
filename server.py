@@ -61,7 +61,7 @@ def main():
             continue_updating = True
             while continue_updating:
                 keep_alive, timeout_count = handle_connection(*c)
-                if not keep_alive or timeout_count > 10:
+                if not keep_alive or timeout_count > 10 and c in connections:
                     connections.remove(c)
                 else:
                     c[3] = timeout_count
