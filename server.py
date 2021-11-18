@@ -37,7 +37,6 @@ def master_server(s : socket.socket):
             log.info("[MASTER] New connection from %s" % (addr[0]))
             c.settimeout(1)
             global next_id
-            global connections
             connections.append([next_id, c, addr, 0])
             next_id += 1
     except socket.timeout:
@@ -56,27 +55,19 @@ def main():
         return
     master_socket.settimeout(1)
     global packets
-    global connections
     while running:
         master_server(master_socket)
         for c in connections:
-            continue_updating = True
-            while continue_updating:
-                keep_alive, timeout_count = handle_connection(*c)
-                continue_updating = timeout_count == 0
-                keep_alive &= timeout_count <= 10
-                if not keep_alive:
-                    try:
-                        connections.remove(c)
-                    except:
-                        log.critical("%s not in %s" % (c, connections))
-                else:
-                    c[3] = timeout_count
-                    if len(packets) > 0:
-                        for packet in packets:
-                            packet.execute()
-                        packets.clear()
-                        led.main_thread_update()
+            keep_alive, timeout_count = handle_connection(*c)
+            if not keep_alive or timeout_count > 10:
+                connections.remove(c)
+            else:
+                c[3] = timeout_count
+        if len(packets) > 0:
+            for packet in packets:
+                packet.execute()
+            packets.clear()
+            led.main_thread_update()
     log.info("[MASTER] Closing server...")
     for connection in connections:
         log.info("[MASTER] Joining connection %d..." % (connection[0]))
