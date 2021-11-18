@@ -57,8 +57,8 @@ def demo(s : socket.socket):
 
 subcommands = {
     "demo": demo,
-    "setpixel": setpixel
-    "setpixels": setpixels
+    "setpixel": setpixel,
+    "setpixels": setpixels,
 }
 
 def main():
