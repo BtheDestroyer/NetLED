@@ -5,6 +5,32 @@ import time
 import socket
 import inspect
 
+def demo(s : socket.socket):
+    log.info("Sending pixel packet 0...")
+    packet = led.Set_Pixel_Packet(0, led.color(255,0,255)).to_bytes()
+    s.send(packet)
+    log.info("Sleeping for 1 seconds...")
+    time.sleep(1)
+    log.info("Sending pixel packet 2...")
+    packet = led.Set_Pixel_Packet(1, led.color(128,255,0)).to_bytes()
+    s.send(packet)
+    log.info("Sleeping for 1 seconds...")
+    time.sleep(1)
+    log.info("Sending pixel packet 3...")
+    packet = led.Set_Pixel_Packet(2, led.color(0,128,255)).to_bytes()
+    s.send(packet)
+    log.info("Sleeping for 1 seconds...")
+    time.sleep(1)
+    log.info("Sending pixel packet 4,5,6...")
+    packet  = led.Set_Pixel_Packet(0, led.color(0,0,0)).to_bytes()
+    packet += led.Set_Pixel_Packet(1, led.color(0,0,0)).to_bytes()
+    packet += led.Set_Pixel_Packet(2, led.color(0,0,0)).to_bytes()
+    s.send(packet)
+    time.sleep(1)
+    log.info("Closing socket...")
+    s.close()
+    log.info("Done!")
+    
 def setpixel(s : socket.socket, index : str, r : str, g : str, b : str):
     index = int(index)
     r = int(r)
@@ -38,32 +64,6 @@ def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
     time.sleep(1)
     s.close()
 
-def demo(s : socket.socket):
-    log.info("Sending pixel packet 0...")
-    packet = led.Set_Pixel_Packet(0, led.color(255,0,255)).to_bytes()
-    s.send(packet)
-    log.info("Sleeping for 1 seconds...")
-    time.sleep(1)
-    log.info("Sending pixel packet 2...")
-    packet = led.Set_Pixel_Packet(1, led.color(128,255,0)).to_bytes()
-    s.send(packet)
-    log.info("Sleeping for 1 seconds...")
-    time.sleep(1)
-    log.info("Sending pixel packet 3...")
-    packet = led.Set_Pixel_Packet(2, led.color(0,128,255)).to_bytes()
-    s.send(packet)
-    log.info("Sleeping for 1 seconds...")
-    time.sleep(1)
-    log.info("Sending pixel packet 4,5,6...")
-    packet  = led.Set_Pixel_Packet(0, led.color(0,0,0)).to_bytes()
-    packet += led.Set_Pixel_Packet(1, led.color(0,0,0)).to_bytes()
-    packet += led.Set_Pixel_Packet(2, led.color(0,0,0)).to_bytes()
-    s.send(packet)
-    time.sleep(1)
-    log.info("Closing socket...")
-    s.close()
-    log.info("Done!")
-
 def streamaudio(s : socket.socket):
     speakers = audio.speaker_stream()
 
@@ -72,6 +72,7 @@ subcommands = {
     "demo": demo,
     "setpixel": setpixel,
     "setpixels": setpixels,
+    "shiftpixels": shiftpixels,
     "streamaudio": streamaudio,
 }
 
