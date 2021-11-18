@@ -3,13 +3,14 @@ import log, project, net, led
 import argparse
 import socket
 import signal
+import time
 
 packets = []
 running = True
 connections = []
 next_id = 0
 
-def handle_connection(connection_id, connection, addr, timeout_count):
+def handle_connection(connection_id, connection, addr, last_message_time):
     try:
         log.info("[%6d] Awaiting packet..." % (connection_id))
         buffer = connection.recv(net.config["buffer_size"])
@@ -21,11 +22,11 @@ def handle_connection(connection_id, connection, addr, timeout_count):
                 packets.append(packet)
                 buffer = remainingbuffer
             connection.send(net.Heartbeat_Packet().to_bytes())
-            return True, 0
+            return True, time.time()
         else:
-            return False, timeout_count
+            return False, last_message_time
     except socket.timeout:
-        return True, timeout_count + 1
+        return True, last_message_time
 
 def master_server(s : socket.socket):
     if s is None:
@@ -38,7 +39,7 @@ def master_server(s : socket.socket):
             log.info("[MASTER] New connection from %s" % (addr[0]))
             c.settimeout(0.01)
             global next_id
-            connections.append([next_id, c, addr, 0])
+            connections.append([next_id, c, addr, time.time()])
             next_id += 1
     except socket.timeout:
         pass
@@ -65,9 +66,9 @@ def main():
             give_focus = True
             keep_alive = True
             while give_focus:
-                keep_alive, timeout_count = handle_connection(*c)
-                c[3] = timeout_count
-                keep_alive &= timeout_count <= 10
+                keep_alive, last_message_time = handle_connection(*c)
+                c[3] = last_message_time
+                keep_alive &= time.time() - last_message_time < 10
                 give_focus = False #keep_alive and timeout_count == 0
                 if len(packets) > 0:
                     for packet in packets:
