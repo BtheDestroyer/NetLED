@@ -6,13 +6,25 @@ import time
 import socket
 import inspect
 
-def setpixel(s : socket.socket, index, r, g, b):
+def setpixel(s : socket.socket, index : str, r : str, g : str, b : str):
     index = int(index)
     r = int(r)
     g = int(g)
     b = int(b)
     log.info("Setting pixel %d to (%d, %d, %d)..." % (index, r, g, b))
     packet = led.Set_Pixel_Packet(index, rpi_ws281x.Color(r,g,b)).to_bytes()
+    s.send(packet)
+    time.sleep(1)
+    s.close()
+
+def setpixels(s : socket.socket, start : str, count: str, r : str, g : str, b : str):
+    start= int(start)
+    count = int(count)
+    r = int(r)
+    g = int(g)
+    b = int(b)
+    log.info("Setting pixels (%d, %d] to (%d, %d, %d)..." % (start, start + count, r, g, b))
+    packet = led.Set_Pixels_Packet(start, count, rpi_ws281x.Color(r,g,b)).to_bytes()
     s.send(packet)
     time.sleep(1)
     s.close()
@@ -46,6 +58,7 @@ def demo(s : socket.socket):
 subcommands = {
     "demo": demo,
     "setpixel": setpixel
+    "setpixels": setpixels
 }
 
 def main():
