@@ -6,8 +6,10 @@ import time
 import socket
 import inspect
 
-def setpixel(s : socket.socket, pixel : int, color : int):
-    pass
+def setpixel(s : socket.socket, index : int, r : int, g : int, b : int):
+    log.info("Setting pixel %d to (%d, %d, %d)..." % (index, r, g, b))
+    packet = led.Set_Pixel_Packet(index, rpi_ws281x.Color(r,g,b)).to_bytes()
+    s.send(packet)
 
 def demo(s : socket.socket):
     log.info("Sending pixel packet 0...")
@@ -30,6 +32,7 @@ def demo(s : socket.socket):
     log.info("Done!")
 
 subcommands = {
+    "demo": demo,
     "setpixel": setpixel
 }
 
@@ -37,7 +40,7 @@ def main():
     log.info("Starting client for " + project.name + " v" + project.version)
     parser = argparse.ArgumentParser()
     parser.add_argument("address", type=str, help="Address to connect to", const="localhost", nargs='?')
-    parser.add_argument("subcommand", type=str, help="Command to send to the server", nargs='?')
+    parser.add_argument("subcommand", type=str, help="Command to send to the server", nargs='?', default="demo", const="demo")
     parser.add_argument("subarguments", type=str, help="Arguments for the subcommand", nargs='*')
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to connect with", default=net.default_port)
     args = parser.parse_args()
@@ -54,7 +57,7 @@ def main():
             if param_count == len(args.subarguments):
                 subcommand(s, *args.subarguments)
             else:
-                params = [key for key in signature.parameters.items()
+                params = [key for key in signature.parameters.keys() if key != "s"]
                 log.error("The subcommand \"%s\" requires %d arguments: %s" % (args.subcommand, param_count, params))
         else:
             log.error("There is no subcommand named \"%s\"" % (args.subcommand))
