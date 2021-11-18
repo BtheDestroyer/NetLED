@@ -36,7 +36,7 @@ def master_server(s : socket.socket):
         c, addr = s.accept()
         if c is not None:
             log.info("[MASTER] New connection from %s" % (addr[0]))
-            c.settimeout(1)
+            c.settimeout(0.01)
             global next_id
             connections.append([next_id, c, addr, 0])
             next_id += 1
@@ -57,7 +57,7 @@ def main():
     if master_socket is None:
         log.critical("Failed to host server!")
         return
-    master_socket.settimeout(1)
+    master_socket.settimeout(0.01)
     global packets
     while running:
         master_server(master_socket)
