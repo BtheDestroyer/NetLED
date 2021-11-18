@@ -77,14 +77,11 @@ def show():
     if not is_initialized():
         log.error("Tried to show when strip is not initialized")
         return
-    global awaiting_show
-    awaiting_show = True
+    global strip
+    strip.show()
 
 def main_thread_update():
-    global awaiting_show
-    if awaiting_show:
-        global strip
-        strip.show()
+    pass
 
 @net.PacketManager.register
 class Set_Pixel_Packet(net.Packet):
@@ -197,16 +194,7 @@ class Show_Packet(net.Packet):
 
     @staticmethod
     def from_bytes(buffer : bytes):
-        packet = Shift_Pixels_Packet()
-        packet.start = int.from_bytes(buffer[0:4], 'little', signed=True)
-        log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
-        packet.count = int.from_bytes(buffer[4:8], 'little', signed=True)
-        log.verbose("Decoded packet.count: %s => %d" % (buffer[4:8], packet.count))
-        packet.shift = int.from_bytes(buffer[8:12], 'little', signed=True)
-        log.verbose("Decoded packet.shift: %s => %x" % (buffer[8:12], packet.shift))
-        packet.show = bool.from_bytes(buffer[12:13], 'little')
-        log.verbose("Decoded packet.show: %s => %s" % (buffer[12:13], packet.show))
-        return packet, buffer[13:]
+        return Shift_Pixels_Packet(), buffer
 
     def to_bytes(self):
         packet_id = net.PacketManager.get_packet_id(self)
@@ -221,7 +209,7 @@ class Show_Packet(net.Packet):
         return buffer
 
     def execute(self):
-        shift_pixels(self.start, self.count, self.shift, self.show)
+        show()
 
 def initialize():
     log.info("Initializing LED strip")
