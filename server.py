@@ -2,53 +2,45 @@
 import rpi_ws281x
 import log, project, net, led
 import argparse
-import threading, socket
+import socket
 import signal, sys
 
-packet_lock = threading.Lock()
 packets = []
 running = True
+connections = []
+next_id = 0
 
-def handle_connection(connection, addr, connection_id):
-    connection.settimeout(10)
-    connection_alive = True
+def handle_connection(connection_id, connection, addr):
     try:
-        while connection_alive:
-            log.info("[%d] Awaiting packet..." % (connection_id))
-            buffer = connection.recv(net.buffer_size)
-            if len(buffer) > 0:
-                packet_lock.acquire()
-                global packets
-                while len(buffer) > 0:
-                    log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
-                    packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-                    log.info("[%d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
-                    packets.append(packet)
-                    buffer = remainingbuffer
-                packet_lock.release()
-            else:
-                connection_alive = False
+        log.info("[%d] Awaiting packet..." % (connection_id))
+        buffer = connection.recv(net.buffer_size)
+        if len(buffer) > 0:
+            global packets
+            while len(buffer) > 0:
+                log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
+                packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
+                log.info("[%d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
+                packets.append(packet)
+                buffer = remainingbuffer
+            return True
+        else:
+            return False
     except socket.timeout:
-        pass
-    connection.close()
-    log.info("[%d] Connection closed with %s" % (connection_id, addr[0]))
+        return True
 
 def master_server(s : socket.socket):
-    s.settimeout(1)
     if s is None:
         log.error("[MASTER] Failed to host!")
         return
-    connections = []
-    next_id = 0
     while running:
         log.verbose("[MASTER] Awaiting connection...")
         try:
             c, addr = s.accept()
             if c is not None:
                 log.info("[MASTER] New connection from %s" % (addr[0]))
-                c_thread = threading.Thread(target=handle_connection, args=(c, addr, next_id))
-                c_thread.start()
-                connections.append((next_id, c_thread, addr))
+                c.settimeout(1)
+                global next_id
+                connections.append((next_id, c, addr))
                 next_id += 1
         except socket.timeout:
             pass
@@ -64,19 +56,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
-    master_thread =threading.Thread(target=master_server, args=(net.host_socket(args.port),))
-    master_thread.start()
+    master_socket = net.host_socket(args.port)
+    master_socket.settimeout(1)
     global packets
     while running:
+        master_server(master_socket)
+        for c in connections:
+            if not handle_connection(*c):
+                connections.remove(c)
         if len(packets) > 0:
-            packet_lock.acquire()
-            packets_copy = packets.copy()
-            packets.clear()
-            packet_lock.release()
-            for packet in packets_copy:
+            for packet in packets:
                 packet.execute()
+            packets.clear()
             led.main_thread_update()
-    master_thread.join()
     log.info("Done!")
 
 def sigint(sig, frame):
