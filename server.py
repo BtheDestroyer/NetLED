@@ -16,12 +16,12 @@ next_id = 0
 def handle_packets(buffer : bytes):
     global packet_lock
     global packets
+    packet_lock.acquire()
     while len(buffer) > 0:
         packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-        packet_lock.acquire()
         packets.append(packet)
-        packet_lock.release()
         buffer = remainingbuffer
+    packet_lock.release()
 
 def update_connection(connection_id, connection, last_message_time):
     try:
