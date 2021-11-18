@@ -37,12 +37,13 @@ def set_pixels(start : int, count : int, color : rpi_ws281x.Color, show : bool =
         for i in range(start + count, start):
             strip.setPixelColor(i, color)
     if show:
-        strip.show()
+        update()
 
 def update():
     if not is_initialized():
         log.error("Tried to update when strip is not initialized")
         return
+    log.info("Showing strip")
     strip.show()
 
 class Set_Pixel_Packet(net.Packet):
