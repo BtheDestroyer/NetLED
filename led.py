@@ -17,7 +17,7 @@ def set_pixel(index : int, color : int, show : bool = False):
         index += config["count"] 
     if index >= config["count"] or index < 0:
         log.error("Tried to set color of pixel %d hen the strip is only %d pixels long" % (index, config["count"]))
-    log.verbose("Setting pixel %d to (%d, %d, %d)" % (index, color & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF))
+    log.verbose("Setting pixel %d to (%d, %d, %d)" % (index, (color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF))
     strip.setPixelColor(index, color)
     if show:
         strip.show()
