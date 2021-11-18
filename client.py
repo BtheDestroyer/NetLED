@@ -115,7 +115,7 @@ def main():
             if param_count == len(args.subarguments):
                 subcommand(s, *args.subarguments)
             else:
-                params = signature.parameters.keys()[1:]
+                params = list(signature.parameters.keys())[1:]
                 log.error("The subcommand \"%s\" requires %d arguments: %s" % (args.subcommand, param_count, params))
         else:
             log.error("There is no subcommand named \"%s\"" % (args.subcommand))
