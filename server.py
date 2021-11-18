@@ -37,6 +37,7 @@ def master_server(s : socket.socket):
             log.info("[MASTER] New connection from %s" % (addr[0]))
             c.settimeout(1)
             global next_id
+            global connections
             connections.append([next_id, c, addr, 0])
             next_id += 1
     except socket.timeout:
@@ -55,6 +56,7 @@ def main():
         return
     master_socket.settimeout(1)
     global packets
+    global connections
     while running:
         master_server(master_socket)
         for c in connections:
