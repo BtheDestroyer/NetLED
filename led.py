@@ -131,7 +131,7 @@ def initialize():
     if is_initialized():
         log.warning("Strip already initialized. Reinitializing")
     try:
-        __import__("rpi_ws281x")
+        rpi_ws281x = __import__("rpi_ws281x")
         global strip
         strip = rpi_ws281x.PixelStrip(
             config["count"],
