@@ -30,7 +30,7 @@ def demo(s : socket.socket):
     log.info("Closing socket...")
     s.close()
     log.info("Done!")
-    
+
 def setpixel(s : socket.socket, index : str, r : str, g : str, b : str):
     index = int(index)
     r = int(r)
@@ -58,7 +58,7 @@ def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
     start= int(start)
     count = int(count)
     shift = int(shift)
-    log.info("Shifting pixels (%d, %d] to (%d, %d]..." % (start, start + count, start + shift, start + count + shift))
+    log.info("Shifting pixels (%d, %d] by %d..." % (start, start + count, shift))
     packet = led.Shift_Pixels_Packet(start, count, shift).to_bytes()
     s.send(packet)
     time.sleep(1)
