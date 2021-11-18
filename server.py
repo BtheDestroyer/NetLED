@@ -19,10 +19,11 @@ def handle_connection(connection, addr):
         while connection_alive:
             log.info("[%d] Awaiting packet..." % (connection_id))
             buffer = connection.recv(net.buffer_size)
-            while len(buffer) > 0:
-                log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
-                packet, buffer = net.PacketManager.parse_buffer(buffer)
-                packet.execute()
+            if len(buffer) > 0:
+                while len(buffer) > 0:
+                    log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
+                    packet, buffer = net.PacketManager.parse_buffer(buffer)
+                    packet.execute()
             else:
                 connection_alive = False
     except socket.timeout:
