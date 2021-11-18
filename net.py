@@ -1,4 +1,4 @@
-import log, project
+import log
 import socket
 
 import cfg
