@@ -3,6 +3,7 @@ import rpi_ws281x
 import log, project, net, led
 import argparse
 import _thread, threading, socket
+import signal, sys
 
 connection_lock = threading.Lock()
 connections = []
@@ -22,8 +23,10 @@ def handle_connection(connection, addr):
             if len(buffer) > 0:
                 while len(buffer) > 0:
                     log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
-                    packet, buffer = net.PacketManager.parse_buffer(buffer)
+                    packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
+                    log.info("[%d] Bytes used: %d" % (len(buffer) - len(remainingbuffer)))
                     packet.execute()
+                    buffer = remainingbuffer
             else:
                 connection_alive = False
     except socket.timeout:
@@ -35,6 +38,7 @@ def handle_connection(connection, addr):
     connection_lock.release()
 
 def main():
+    signal.signal(signal.SIGINT, sigint)
     log.info("Starting server for " + project.name + " v" + project.version)
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
@@ -50,6 +54,10 @@ def main():
     log.info("[MASTER] Closing server...")
     s.close()
     log.info("Done!")
+
+def sigint(sig, frame):
+    global running
+    running = False
 
 if __name__ == "__main__":
     main()
