@@ -16,6 +16,7 @@ def handle_connection(connection, addr):
     connections.append(connection)
     connection_id = len(connections) - 1
     connection_lock.release()
+    connection.settimeout(10)
     log.info("[%d] Awaiting packet..." % (connection_id))
     try:
         while True:
