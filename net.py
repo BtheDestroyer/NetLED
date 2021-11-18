@@ -1,5 +1,6 @@
 import log
 import socket
+import struct
 
 import cfg
 config = cfg.config["net"]
@@ -54,6 +55,7 @@ class PacketManager:
             return
         return packet_types[packet_id].from_bytes(buffer[4:])
 
+@PacketManager.register
 class Packet:
     def __init__(self):
         pass
@@ -67,8 +69,8 @@ class Packet:
 
     def execute(self):
         raise NotImplementedError()
-PacketManager.register(Packet)
 
+@PacketManager.register
 class Heartbeat_Packet(Packet):
     def __init__(self):
         pass
@@ -81,5 +83,32 @@ class Heartbeat_Packet(Packet):
         return bytes()
 
     def execute(self):
+        packet_id = PacketManager.get_packet_id(self)
+        if packet_id is None:
+            log.error("Couldn't get packet id for Heartbeat_Packet")
+            return
+        buffer = packet_id.to_bytes(4, 'little')
+        return buffer
+
+@PacketManager.register
+class Sleep_Packet(Packet):
+    def __init__(self, time : float = 1):
+        self.time = time
+
+    @staticmethod
+    def from_bytes(buffer : bytes):
+        packet = Sleep_Packet()
+        packet.time = struct.unpack("f", buffer[0:4])
+        return buffer[4:]
+
+    def to_bytes(self):
+        packet_id = PacketManager.get_packet_id(self)
+        if packet_id is None:
+            log.error("Couldn't get packet id for Sleep_Packet")
+            return
+        buffer = packet_id.to_bytes(4, 'little')
+        buffer = bytes(struct.pack("f", self.time))
+        return buffer
+
+    def execute(self):
         pass
-PacketManager.register(Heartbeat_Packet)

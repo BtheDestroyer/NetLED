@@ -10,14 +10,14 @@ led:
 log:
   path: "netled.log"
   levels:
-    verbose: True
+    verbose: False
     info: True
     warning: True
     error: True
     critical: True
 
 net:
-  buffer_size: 1024
+  buffer_size: 4096
   default_port: 2425
 
 audio:
