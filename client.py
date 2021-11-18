@@ -26,12 +26,6 @@ def demo(s : socket.socket):
     packet += led.Set_Pixel_Packet(1, led.color(0,0,0)).to_bytes()
     packet += led.Set_Pixel_Packet(2, led.color(0,0,0)).to_bytes()
     s.send(packet)
-    # Wait for server to tell us it's done
-    while len(buffer) == 0:
-        buffer = s.recv(net.config["buffer_size"])
-    log.info("Closing socket...")
-    s.close()
-    log.info("Done!")
 
 def setpixel(s : socket.socket, index : str, r : str, g : str, b : str):
     index = int(index)
@@ -41,10 +35,6 @@ def setpixel(s : socket.socket, index : str, r : str, g : str, b : str):
     log.info("Setting pixel %d to (%d, %d, %d)..." % (index, r, g, b))
     packet = led.Set_Pixel_Packet(index, led.color(r,g,b)).to_bytes()
     s.send(packet)
-    # Wait for server to tell us it's done
-    while len(buffer) == 0:
-        buffer = s.recv(net.config["buffer_size"])
-    s.close()
 
 def setpixels(s : socket.socket, start : str, count: str, r : str, g : str, b : str):
     start= int(start)
@@ -55,10 +45,6 @@ def setpixels(s : socket.socket, start : str, count: str, r : str, g : str, b : 
     log.info("Setting pixels (%d, %d] to (%d, %d, %d)..." % (start, start + count, r, g, b))
     packet = led.Set_Pixels_Packet(start, count, led.color(r,g,b)).to_bytes()
     s.send(packet)
-    # Wait for server to tell us it's done
-    while len(buffer) == 0:
-        buffer = s.recv(net.config["buffer_size"])
-    s.close()
 
 def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
     start= int(start)
@@ -67,10 +53,6 @@ def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
     log.info("Shifting pixels (%d, %d] by %d..." % (start, start + count, shift))
     packet = led.Shift_Pixels_Packet(start, count, shift).to_bytes()
     s.send(packet)
-    # Wait for server to tell us it's done
-    while len(buffer) == 0:
-        buffer = s.recv(net.config["buffer_size"])
-    s.close()
 
 def streamaudio(s : socket.socket):
     speakers = audio.speaker_stream()
@@ -90,16 +72,12 @@ def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : 
         buffer += net.Sleep_Packet(wait_ms / 1000.0).to_bytes()
         if len(buffer) > net.config["buffer_size"] / 4:
             s.send(buffer)
-            buffer = bytes()
             # Wait for server to tell us to keep going
+            buffer = bytes()
             while len(buffer) == 0:
                 buffer = s.recv(net.config["buffer_size"])
     if len(buffer) > 0:
         s.send(buffer)
-    # Wait for server to tell us it's done
-    while len(buffer) == 0:
-        buffer = s.recv(net.config["buffer_size"])
-    s.close()
 
 
 subcommands = {
@@ -131,6 +109,11 @@ def main():
             param_count = len(signature.parameters) - 1
             if param_count == len(args.subarguments):
                 subcommand(s, *args.subarguments)
+                # Wait for server to tell us it's done
+                buffer = bytes()
+                while len(buffer) == 0:
+                    buffer = s.recv(net.config["buffer_size"])
+                s.close()
             else:
                 params = list(signature.parameters.keys())[1:]
                 log.error("The subcommand \"%s\" requires %d arguments: %s" % (args.subcommand, param_count, params))
