@@ -64,7 +64,10 @@ def main():
                 continue_updating = timeout_count == 0
                 keep_alive &= timeout_count <= 10
                 if not keep_alive:
-                    connections.remove(c)
+                    try:
+                        connections.remove(c)
+                    except:
+                        log.critical("%s not in %s" % (c, connections))
                 else:
                     c[3] = timeout_count
                     if len(packets) > 0:
