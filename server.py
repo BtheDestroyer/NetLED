@@ -60,7 +60,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
-    master_thread_id = _thread.start_new_thread(master_server, net.host_socket(args.port))
+    master_thread_id = _thread.start_new_thread(master_server, (net.host_socket(args.port)))
     while running:
         led.main_thread_update()
     log.info("Done!")
