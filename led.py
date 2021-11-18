@@ -68,7 +68,7 @@ class Set_Pixel_Packet(net.Packet):
         packet.pixel = int.from_bytes(buffer[0:4], 'little')
         log.verbose("Decoded packet.pixel: %s => %d" % (buffer[0:4], packet.pixel))
         packet.color = int.from_bytes(buffer[4:8], 'little')
-        log.verbose("Decoded packet.color: %s => %d" % (buffer[4:8], packet.color))
+        log.verbose("Decoded packet.color: %s => %x" % (buffer[4:8], packet.color))
         packet.show = bool.from_bytes(buffer[8:9], 'little')
         log.verbose("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
         return packet, buffer[9:]
@@ -101,9 +101,9 @@ class Set_Pixels_Packet(net.Packet):
         packet.start = int.from_bytes(buffer[0:4], 'little')
         log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
         packet.count = int.from_bytes(buffer[4:8], 'little')
-        log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.count))
+        log.verbose("Decoded packet.count: %s => %d" % (buffer[0:4], packet.count))
         packet.color = int.from_bytes(buffer[8:12], 'little')
-        log.verbose("Decoded packet.color: %s => %d" % (buffer[4:8], packet.color))
+        log.verbose("Decoded packet.color: %s => %x" % (buffer[4:8], packet.color))
         packet.show = bool.from_bytes(buffer[12:13], 'little')
         log.verbose("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
         return packet, buffer[13:]
