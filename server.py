@@ -26,7 +26,9 @@ def handle_connection(connection_id, connection, addr, last_message_time):
         buffer = connection.recv(net.config["buffer_size"])
         if len(buffer) > 0:
             log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
-            threads.append(threading.Thread(target=handle_packets, args=(buffer,)))
+            thread = threading.Thread(target=handle_packets, args=(buffer,))
+            thread.start()
+            threads.append(thread)
             connection.send(net.Heartbeat_Packet().to_bytes())
             return True, time.time()
         else:
