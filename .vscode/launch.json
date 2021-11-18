@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Client",
+            "type": "python",
+            "request": "launch",
+            "program": "client.py",
+            "console": "integratedTerminal",
+            "args": ["-p2222", "-afairy", "pulse", "100", "0", "0", "10", "10"]
+        },
+        {
             "name": "Python: Remote Attach",
             "type": "python",
             "request": "attach",
