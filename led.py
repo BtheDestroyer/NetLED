@@ -47,8 +47,8 @@ def update():
 
 class Set_Pixel_Packet(net.Packet):
     def __init__(self, pixel : int = 0, color : int = 0, show : bool = True):
-        self.pixel = 0
-        self.color = 0
+        self.pixel = pixel
+        self.color = color
         self.show = show
 
     @staticmethod
