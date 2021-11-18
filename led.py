@@ -55,6 +55,7 @@ def main_thread_update():
         global strip
         strip.show()
 
+@net.PacketManager.register
 class Set_Pixel_Packet(net.Packet):
     def __init__(self, pixel : int = 0, color : int = 0, show : bool = True):
         self.pixel = pixel
@@ -85,8 +86,8 @@ class Set_Pixel_Packet(net.Packet):
 
     def execute(self):
         set_pixel(self.pixel, self.color, self.show)
-net.PacketManager.register(Set_Pixel_Packet)
 
+@net.PacketManager.register
 class Set_Pixels_Packet(net.Packet):
     def __init__(self, start : int = 0, count : int = 1, color : int = 0, show : bool = True):
         self.start = start
@@ -121,7 +122,6 @@ class Set_Pixels_Packet(net.Packet):
 
     def execute(self):
         set_pixels(self.start, self.count, self.color, self.show)
-net.PacketManager.register(Set_Pixels_Packet)
 
 # Initialization
 log.info("Initializing LED strip")
