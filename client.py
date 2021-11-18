@@ -6,7 +6,11 @@ import time
 import socket
 import inspect
 
-def setpixel(s : socket.socket, index : int, r : int, g : int, b : int):
+def setpixel(s : socket.socket, index, r, g, b):
+    index = int(index)
+    r = int(r)
+    g = int(g)
+    b = int(b)
     log.info("Setting pixel %d to (%d, %d, %d)..." % (index, r, g, b))
     packet = led.Set_Pixel_Packet(index, rpi_ws281x.Color(r,g,b)).to_bytes()
     s.send(packet)
