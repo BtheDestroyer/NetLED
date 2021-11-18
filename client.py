@@ -69,10 +69,10 @@ def streamaudio(s : socket.socket, device_id : str, r : str, g : str, b : str):
             volume = 0
             for sample in frame:
                 volume = max(volume, abs(sample))
-            log.info("Volume: %f" % (volume,))
             buffer += led.Shift_Pixels_Packet(0, led.config["count"], 1, True).to_bytes()
             buffer += led.Set_Pixel_Packet(0, led.color(r * volume, g * volume, b * volume), False).to_bytes()
             if len(buffer) > net.config["buffer_size"] / 4:
+                log.info("Volume: %f" % (volume,))
                 s.send(buffer)
                 # Wait for server to tell us to keep going
                 buffer = bytes()
