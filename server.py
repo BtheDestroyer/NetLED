@@ -64,6 +64,7 @@ def main():
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
     master_thread =threading.Thread(target=master_server, args=(net.host_socket(args.port),))
+    master_thread.start()
     while running:
         global packets
         if len(packets) > 0:
