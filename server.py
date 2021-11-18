@@ -75,9 +75,7 @@ def main():
             packet_lock.release()
             for packet in packets_copy:
                 packet.execute()
-            if led.awaiting_show:
-                led.awaiting_show = False
-                led.strip.show()
+            led.main_thread_update()
     master_thread.join()
     log.info("Done!")
 
