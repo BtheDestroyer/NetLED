@@ -16,9 +16,8 @@ def handle_connection(connection_id, connection, addr, timeout_count):
         if len(buffer) > 0:
             global packets
             while len(buffer) > 0:
-                log.info("[%6d] Handling buffer: %s" % (connection_id, buffer))
+                log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
                 packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-                log.info("[%6d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
                 packets.append(packet)
                 buffer = remainingbuffer
             return True, 0
