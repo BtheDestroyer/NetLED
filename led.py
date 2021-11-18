@@ -6,6 +6,9 @@ initialized = False
 strip = None
 awaiting_show = False
 
+def color(red, green, blue, white=0):
+    return ((white & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF)
+
 def is_initialized():
     global initialized
     return initialized
@@ -128,7 +131,7 @@ def initialize():
     if is_initialized():
         log.warning("Strip already initialized. Reinitializing")
     try:
-        __import__(rpi_ws281x)
+        __import__("rpi_ws281x")
         global strip
         strip = rpi_ws281x.PixelStrip(
             config["count"],
