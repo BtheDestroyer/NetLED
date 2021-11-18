@@ -79,6 +79,7 @@ def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : 
         if i < length:
             packet += led.Set_Pixel_Packet(0, led.color(r, g, b)).to_bytes()
         s.send(packet)
+        print(".", end="", flush=True)
         time.sleep(wait_ms / 1000.0)
     time.sleep(1)
     s.close()
