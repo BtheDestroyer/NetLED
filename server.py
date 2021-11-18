@@ -12,7 +12,7 @@ next_id = 0
 
 def handle_connection(connection_id, connection, addr, last_message_time):
     try:
-        log.info("[%6d] Awaiting packet..." % (connection_id))
+        log.verbose("[%6d] Awaiting packet..." % (connection_id))
         buffer = connection.recv(net.config["buffer_size"])
         if len(buffer) > 0:
             log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
