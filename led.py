@@ -87,6 +87,42 @@ class Set_Pixel_Packet(net.Packet):
         set_pixel(self.pixel, self.color, self.show)
 net.PacketManager.register(Set_Pixel_Packet)
 
+class Set_Pixels_Packet(net.Packet):
+    def __init__(self, start : int = 0, count : int = 1, color : int = 0, show : bool = True):
+        self.start = start
+        self.count = count
+        self.color = color
+        self.show = show
+
+    @staticmethod
+    def from_bytes(buffer : bytes):
+        packet = Set_Pixel_Packet()
+        packet.start = int.from_bytes(buffer[0:4], 'little')
+        log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
+        packet.count = int.from_bytes(buffer[4:8], 'little')
+        log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.count))
+        packet.color = int.from_bytes(buffer[8:12], 'little')
+        log.verbose("Decoded packet.color: %s => %d" % (buffer[4:8], packet.color))
+        packet.show = bool.from_bytes(buffer[12:13], 'little')
+        log.verbose("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
+        return packet, buffer[13:]
+
+    def to_bytes(self):
+        packet_id = net.PacketManager.get_packet_id(self)
+        if packet_id is None:
+            log.error("Couldn't get packet id for Set_Pixel_Packet")
+            return
+        buffer = packet_id.to_bytes(4, 'little')
+        buffer += self.start.to_bytes(4, 'little')
+        buffer += self.count.to_bytes(4, 'little')
+        buffer += self.color.to_bytes(4, 'little')
+        buffer += self.show.to_bytes(1, 'little')
+        return buffer
+
+    def execute(self):
+        set_pixels(self.start, self.count, self.color, self.show)
+net.PacketManager.register(Set_Pixel_Packet)
+
 # Initialization
 log.info("Initializing LED strip")
 if is_initialized():
