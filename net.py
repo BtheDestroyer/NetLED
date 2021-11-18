@@ -54,8 +54,8 @@ class PacketManager:
         log.info("len(packet_types) = %d" % (len(packet_types)))
         log.info("type(packet) = %s" % (type(packet)))
         for i in range(len(packet_types)):
-            log.info("type(packet_types[%d]) = %s" % (i, type(packet_types[i])))
-            if type(packet) == type(packet_types[i]):
+            log.info("type(packet_types[%d]) = %s" % (i, packet_types[i]))
+            if type(packet) == packet_types[i]:
                 return i
         return None
 
