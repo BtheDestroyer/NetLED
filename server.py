@@ -74,8 +74,8 @@ def main():
             while give_focus:
                 keep_alive, last_message_time = handle_connection(*c)
                 c[3] = last_message_time
-                timeout = time.time() - last_message_time < net.config["connection_timeout"]
-                keep_alive &= timeout
+                timeout = time.time() - last_message_time > net.config["connection_timeout"]
+                keep_alive &= not timeout
                 give_focus = keep_alive and timeout < 0.01
                 if len(packets) > 0:
                     packets_copy = packets.copy()
