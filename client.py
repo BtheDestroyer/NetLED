@@ -5,7 +5,7 @@ import argparse
 import time
 
 def main():
-    log.info("Set_Pixel_Packet.packet_id = %d" % (Set_Pixel_Packet.packet_id))
+    log.info("Set_Pixel_Packet.packet_id = %d" % (led.Set_Pixel_Packet.packet_id))
     log.info("len(net.packet_types) = %d" % (len(net.packet_types)))
     log.info("Starting client for " + project.name + " v" + project.version)
     parser = argparse.ArgumentParser()
