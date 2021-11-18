@@ -58,11 +58,15 @@ def main():
     while running:
         master_server(master_socket)
         for c in connections:
-            keep_alive, timeout_count = handle_connection(*c)
-            if not keep_alive or timeout_count > 10:
-                connections.remove(c)
-            else:
+            give_focus = True
+            keep_alive = True
+            while give_focus:
+                keep_alive, timeout_count = handle_connection(*c)
                 c[3] = timeout_count
+                keep_alive &= timeout_count <= 10
+                give_focus = timeout_count == 0
+            if not keep_alive:
+                connections.remove(c)
         if len(packets) > 0:
             for packet in packets:
                 packet.execute()
