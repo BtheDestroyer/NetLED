@@ -14,9 +14,9 @@ def handle_connection(connection_id, connection, addr, timeout_count):
         log.info("[%6d] Awaiting packet..." % (connection_id))
         buffer = connection.recv(net.buffer_size)
         if len(buffer) > 0:
+            log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
             global packets
             while len(buffer) > 0:
-                log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
                 packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
                 packets.append(packet)
                 buffer = remainingbuffer
@@ -42,6 +42,9 @@ def master_server(s : socket.socket):
     except socket.timeout:
         pass
 
+def server():
+    pass
+
 def main():
     signal.signal(signal.SIGINT, sigint)
     log.info("Starting server for " + project.name + " v" + project.version)
@@ -64,7 +67,7 @@ def main():
                 keep_alive, timeout_count = handle_connection(*c)
                 c[3] = timeout_count
                 keep_alive &= timeout_count <= 10
-                give_focus = timeout_count == 0
+                give_focus = keep_alive and timeout_count == 0
                 if len(packets) > 0:
                     for packet in packets:
                         packet.execute()
