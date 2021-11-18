@@ -12,14 +12,14 @@ next_id = 0
 
 def handle_connection(connection_id, connection, addr):
     try:
-        log.info("[%d] Awaiting packet..." % (connection_id))
+        log.info("[%6d] Awaiting packet..." % (connection_id))
         buffer = connection.recv(net.buffer_size)
         if len(buffer) > 0:
             global packets
             while len(buffer) > 0:
-                log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
+                log.info("[%6d] Handling buffer: %s" % (connection_id, buffer))
                 packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-                log.info("[%d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
+                log.info("[%6d] Bytes used: %d / %d" % (connection_id, len(buffer) - len(remainingbuffer), len(buffer)))
                 packets.append(packet)
                 buffer = remainingbuffer
             return True
@@ -32,23 +32,17 @@ def master_server(s : socket.socket):
     if s is None:
         log.error("[MASTER] Failed to host!")
         return
-    while running:
-        log.verbose("[MASTER] Awaiting connection...")
-        try:
-            c, addr = s.accept()
-            if c is not None:
-                log.info("[MASTER] New connection from %s" % (addr[0]))
-                c.settimeout(1)
-                global next_id
-                connections.append((next_id, c, addr))
-                next_id += 1
-        except socket.timeout:
-            pass
-    log.info("[MASTER] Closing server...")
-    for connection in connections:
-        log.info("[MASTER] Joining connection %d..." % (connection[0]))
-        connection[1].join()
-    s.close()
+    log.verbose("[MASTER] Awaiting connection...")
+    try:
+        c, addr = s.accept()
+        if c is not None:
+            log.info("[MASTER] New connection from %s" % (addr[0]))
+            c.settimeout(1)
+            global next_id
+            connections.append((next_id, c, addr))
+            next_id += 1
+    except socket.timeout:
+        pass
 
 def main():
     signal.signal(signal.SIGINT, sigint)
@@ -69,6 +63,11 @@ def main():
                 packet.execute()
             packets.clear()
             led.main_thread_update()
+    log.info("[MASTER] Closing server...")
+    for connection in connections:
+        log.info("[MASTER] Joining connection %d..." % (connection[0]))
+        connection[1].close()
+    master_socket.close()
     log.info("Done!")
 
 def sigint(sig, frame):
