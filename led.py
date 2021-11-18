@@ -1,11 +1,12 @@
 import rpi_ws281x
 import log, net
+import threading
 
 import cfg
 config = cfg.config["led"]
 initialized = False
-global strip
 strip = None
+show_lock = threading.Lock()
 awaiting_show = False
 
 def is_initialized():
@@ -46,16 +47,20 @@ def show():
     if not is_initialized():
         log.error("Tried to show when strip is not initialized")
         return
-    log.info("Showing strip")
+    show_lock.acquire()
     global awaiting_show
     awaiting_show = True
+    show_lock.release()
 
 def main_thread_update():
     global awaiting_show
     if awaiting_show:
+        show_lock.acquire()
+        log.info("Showing strip")
         awaiting_show = False
         global strip
         strip.show()
+        show_lock.release()
 
 
 class Set_Pixel_Packet(net.Packet):
