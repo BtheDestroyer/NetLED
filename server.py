@@ -24,7 +24,7 @@ def handle_connection(connection, addr):
                 while len(buffer) > 0:
                     log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
                     packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-                    log.info("[%d] Bytes used: %d" % (len(buffer) - len(remainingbuffer)))
+                    log.info("[%d] Bytes used: %d" % (connection_id, len(buffer) - len(remainingbuffer)))
                     packet.execute()
                     buffer = remainingbuffer
             else:
