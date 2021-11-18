@@ -162,12 +162,12 @@ class Shift_Pixels_Packet(net.Packet):
         packet.start = int.from_bytes(buffer[0:4], 'little')
         log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
         packet.count = int.from_bytes(buffer[4:8], 'little')
-        log.verbose("Decoded packet.count: %s => %d" % (buffer[0:4], packet.count))
+        log.verbose("Decoded packet.count: %s => %d" % (buffer[4:8], packet.count))
         packet.shift = int.from_bytes(buffer[8:12], 'little')
-        log.verbose("Decoded packet.shift: %s => %x" % (buffer[4:8], packet.shift))
+        log.verbose("Decoded packet.shift: %s => %x" % (buffer[8:12], packet.shift))
         packet.show = bool.from_bytes(buffer[12:13], 'little')
-        log.verbose("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
-        return packet, buffer[5:]
+        log.verbose("Decoded packet.show: %s => %s" % (buffer[12:13], packet.show))
+        return packet, buffer[13:]
 
     def to_bytes(self):
         packet_id = net.PacketManager.get_packet_id(self)
