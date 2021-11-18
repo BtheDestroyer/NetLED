@@ -67,10 +67,11 @@ def main():
     master_thread_id = _thread.start_new_thread(master_server, (net.host_socket(args.port),))
     while running:
         global packets
-        packet_lock.acquire()
-        for packet in packets:
-            packet.execute()
-        packet_lock.release()
+        if len(packets) > 0:
+            packet_lock.acquire()
+            for packet in packets:
+                packet.execute()
+            packet_lock.release()
         led.main_thread_update()
     log.info("Done!")
 
