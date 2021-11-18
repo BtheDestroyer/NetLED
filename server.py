@@ -61,16 +61,17 @@ def main():
             continue_updating = True
             while continue_updating:
                 keep_alive, timeout_count = handle_connection(*c)
-                if not keep_alive or timeout_count > 10:
+                continue_updating = timeout_count == 0
+                keep_alive &= timeout_count <= 10
+                if not keep_alive:
                     connections.remove(c)
                 else:
                     c[3] = timeout_count
-                continue_updating = timeout_count == 0
-            if len(packets) > 0:
-                for packet in packets:
-                    packet.execute()
-                packets.clear()
-                led.main_thread_update()
+                    if len(packets) > 0:
+                        for packet in packets:
+                            packet.execute()
+                        packets.clear()
+                        led.main_thread_update()
     log.info("[MASTER] Closing server...")
     for connection in connections:
         log.info("[MASTER] Joining connection %d..." % (connection[0]))
