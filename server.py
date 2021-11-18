@@ -69,9 +69,9 @@ def main():
         global packets
         if len(packets) > 0:
             packet_lock.acquire()
-            packets_copy = packets
-            packet_lock.release()
+            packets_copy = packets.copy()
             packets.clear()
+            packet_lock.release()
             for packet in packets_copy:
                 packet.execute()
         led.main_thread_update()
