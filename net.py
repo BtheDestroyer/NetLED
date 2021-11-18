@@ -97,7 +97,7 @@ class Sleep_Packet(Packet):
     @staticmethod
     def from_bytes(buffer : bytes):
         packet = Sleep_Packet()
-        packet.time = struct.unpack("f", buffer[0:4])
+        packet.time = struct.unpack("f", buffer[0:4])[0]
         return packet, buffer[4:]
 
     def to_bytes(self):
