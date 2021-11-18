@@ -5,11 +5,9 @@ import time
 
 import cfg
 config = cfg.config["net"]
-buffer_size = config["buffer_size"]
-default_port = config["default_port"]
 packet_types = []
 
-def host_socket(port : int = default_port):
+def host_socket(port : int = config["default_port"]):
     s = socket.socket()
     try:
         s.bind(('', port))
@@ -19,7 +17,7 @@ def host_socket(port : int = default_port):
     s.listen()
     return s
 
-def connect_socket(address : str, port : int = default_port):
+def connect_socket(address : str, port : int = config["default_port"]):
     s = socket.socket()
     try:
         s.connect((address, port))

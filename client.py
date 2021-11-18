@@ -76,12 +76,15 @@ def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : 
     log.info("Pulsing...")
     for i in range(led.config["count"] + length):
         buffer = bytes()
-        buffer += led.Shift_Pixels_Packet(0, led.config["count"], 1).to_bytes()
+        buffer += led.Shift_Pixels_Packet(0, led.config["count"], 1, True).to_bytes()
         if i < length:
-            buffer += led.Set_Pixel_Packet(0, led.color(r, g, b)).to_bytes()
+            buffer += led.Set_Pixel_Packet(0, led.color(r, g, b), False).to_bytes()
         s.send(buffer)
         buffer += net.Sleep_Packet(wait_ms / 1000.0).to_bytes()
-        time.sleep(wait_ms / 1000.0)
+        buffer = bytes()
+        # Wait for server to tell us to keep going
+        while len(buffer) == 0:
+            buffer = s.recv(net.config["buffer_size"])
     time.sleep(1)
     s.close()
 
@@ -101,7 +104,7 @@ def main():
     parser.add_argument("subcommand", type=str, help="Command to send to the server", nargs='?', default="demo", const="demo")
     parser.add_argument("subarguments", type=str, help="Arguments for the subcommand", nargs='*')
     parser.add_argument("-a", metavar="address", dest="address", type=str, help="Address to connect to", default="localhost", const="localhost", nargs='?')
-    parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to connect with", default=net.default_port)
+    parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to connect with", default=net.config["default_port"])
     args = parser.parse_args()
     log.info("Connecting to %s:%d" % (args.address, args.port))
     s = net.connect_socket(args.address, args.port)

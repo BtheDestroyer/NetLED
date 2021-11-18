@@ -12,7 +12,7 @@ next_id = 0
 def handle_connection(connection_id, connection, addr, timeout_count):
     try:
         log.info("[%6d] Awaiting packet..." % (connection_id))
-        buffer = connection.recv(net.buffer_size)
+        buffer = connection.recv(net.config["buffer_size"])
         if len(buffer) > 0:
             log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
             global packets
@@ -20,6 +20,7 @@ def handle_connection(connection_id, connection, addr, timeout_count):
                 packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
                 packets.append(packet)
                 buffer = remainingbuffer
+            connection.send(net.Heartbeat_Packet().to_bytes())
             return True, 0
         else:
             return False, timeout_count
@@ -50,7 +51,7 @@ def main():
     log.info("Starting server for " + project.name + " v" + project.version)
     led.initialize()
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
+    parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.config["default_port"])
     args = parser.parse_args()
     master_socket = net.host_socket(args.port)
     if master_socket is None:
