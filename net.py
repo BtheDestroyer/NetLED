@@ -68,3 +68,18 @@ class Packet:
     def execute(self):
         raise NotImplementedError()
 PacketManager.register(Packet)
+
+class Heartbeat_Packet(Packet):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_bytes(buffer : bytes):
+        return buffer
+
+    def to_bytes(self):
+        return bytes()
+
+    def execute(self):
+        pass
+PacketManager.register(Heartbeat_Packet)
