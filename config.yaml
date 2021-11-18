@@ -10,6 +10,7 @@ led:
 log:
   path: "netled.log"
   levels:
+    verbose: True
     info: True
     warning: True
     error: True

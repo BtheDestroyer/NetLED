@@ -27,6 +27,10 @@ def tee(message : str):
     print(message, end="")
     log_lock.release()
 
+def verbose(message : str):
+    if config["levels"]["verbose"]:
+        tee("[VER] " + message)
+
 def info(message : str):
     if config["levels"]["info"]:
         tee("[INF] " + message)

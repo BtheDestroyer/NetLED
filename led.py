@@ -9,7 +9,7 @@ strip = None
 def is_initialized():
     return initialized
 
-def set_pixel(index : int, color : rpi_ws281x.Color, show : bool = False):
+def set_pixel(index : int, color : int, show : bool = False):
     if not is_initialized():
         log.error("Tried to set color of pixel when strip is not initialized")
         return
@@ -17,6 +17,7 @@ def set_pixel(index : int, color : rpi_ws281x.Color, show : bool = False):
         index += config["count"] 
     if index >= config["count"] or index < 0:
         log.error("Tried to set color of pixel %d hen the strip is only %d pixels long" % (index, config["count"]))
+    log.verbose("Setting pixel %d to (%d, %d, %d)" % (index, color % 0xFF, (color >> 8) % 0xFF, (color >> 16) % 0xFF))
     strip.setPixelColor(index, color)
     if show:
         strip.show()
