@@ -50,10 +50,13 @@ def main():
         return
     while running:
         log.verbose("[MASTER] Awaiting connection...")
-        c, addr = s.accept()
-        if c is not None:
-            log.info("[MASTER] New connection from %s" % (addr[0]))
-            _thread.start_new_thread(handle_connection, (c, addr))
+        try:
+            c, addr = s.accept()
+            if c is not None:
+                log.info("[MASTER] New connection from %s" % (addr[0]))
+                _thread.start_new_thread(handle_connection, (c, addr))
+        except socket.timeout:
+            pass
     log.info("[MASTER] Closing server...")
     s.close()
     log.info("Done!")
