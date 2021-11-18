@@ -24,7 +24,7 @@ def set_pixel(index : int, color : int, show_now : bool = False):
     if show_now:
         show()
 
-def set_pixels(start : int, count : int, color : int, show : bool = False):
+def set_pixels(start : int, count : int, color : int, show_now : bool = False):
     if not is_initialized():
         log.error("Tried to set color of pixel when strip is not initialized")
         return
@@ -39,7 +39,7 @@ def set_pixels(start : int, count : int, color : int, show : bool = False):
     else:
         for i in range(start + count, start):
             strip.setPixelColor(i, color)
-    if show:
+    if show_now:
         show()
 
 def show():
