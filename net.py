@@ -5,6 +5,7 @@ import cfg
 config = cfg.config["net"]
 packet_size = config["packet_size"]
 default_port = config["default_port"]
+packet_types = []
 
 def host_socket(port : int = default_port):
     s = socket.socket()
@@ -37,18 +38,18 @@ class Packet:
         raise NotImplementedError()
 
 class PacketManager:
-    packet_types = []
-
     @staticmethod
     def register(packet : type):
         log.info("Registering packet type %s as id %d" % (packet.__name__, len(PacketManager.packet_types)))
-        PacketManager.packet_types.append(packet)
+        global packet_types
+        packet_types.append(packet)
         return len(PacketManager.packet_types) - 1
 
     @staticmethod
     def get_packet_id(packet):
-        for i in range(len(PacketManager.packet_types)):
-            if type(packet) == type(PacketManager.packet_types[i]):
+        global packet_types
+        for i in range(len(packet_types)):
+            if type(packet) == type(packet_types[i]):
                 return i
         return None
 
@@ -58,8 +59,9 @@ class PacketManager:
             log.error("Buffer given to PacketManager is empty")
             return
         packet_id = int.from_bytes(buffer)
-        if len(PacketManager.packet_types) < packet_id:
+        global packet_types
+        if len(packet_types) < packet_id:
             log.error("Buffer given to PacketManager is for a type of packet that is not managed")
             return
-        return PacketManager.packet_types[packet_id].from_bytes(buffer[len(int.to_bytes(packet_id)):])
+        return packet_types[packet_id].from_bytes(buffer[len(int.to_bytes(packet_id)):])
 
