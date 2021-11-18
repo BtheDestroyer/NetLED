@@ -8,9 +8,6 @@ connection_lock = threading.Lock()
 connections = []
 running = True
 
-def handle_packet():
-    pass
-
 def handle_connection(connection, addr):
     connection_lock.acquire()
     connections.append(connection)
@@ -21,16 +18,17 @@ def handle_connection(connection, addr):
     try:
         while connection_alive:
             log.info("[%d] Awaiting packet..." % (connection_id))
-            packet = connection.recv(net.packet_size)
-            if len(packet) > 0:
-                log.info("[%d] Handling packet: %s" % (connection_id, packet))
-                net.PacketManager.handle_buffer(packet)
+            buffer = connection.recv(net.buffer_size)
+            if len(buffer) > 0:
+                log.info("[%d] Handling buffer: %s" % (connection_id, buffer))
+                packet, buffer = net.PacketManager.parse_buffer(buffer)
+                packet.execute()
             else:
                 connection_alive = False
     except socket.timeout:
         pass
     connection.close()
-    log.info("Connection closed with %s" % (addr[0]))
+    log.info("[%d] Connection closed with %s" % (connection_id, addr[0]))
     connection_lock.acquire()
     connections[connection_id] = None
     connection_lock.release()

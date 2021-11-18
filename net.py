@@ -3,7 +3,7 @@ import socket
 
 import cfg
 config = cfg.config["net"]
-packet_size = config["packet_size"]
+buffer_size = config["buffer_size"]
 default_port = config["default_port"]
 packet_types = []
 
@@ -26,19 +26,6 @@ def connect_socket(address : str, port : int = default_port):
         return
     return s
 
-class Packet:
-    packet_id = None
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def from_bytes(buffer : bytes):
-        raise NotImplementedError()
-
-    def to_bytes(self):
-        raise NotImplementedError()
-
 class PacketManager:
     @staticmethod
     def register(packet : type):
@@ -60,14 +47,28 @@ class PacketManager:
         return None
 
     @staticmethod
-    def handle_buffer(buffer : bytes):
+    def parse_buffer(buffer : bytes):
         if len(buffer) == 0:
             log.error("Buffer given to PacketManager is empty")
             return
-        packet_id = int.from_bytes(buffer)
+        packet_id = int.from_bytes(buffer[0:4], 'little')
         global packet_types
         if len(packet_types) < packet_id:
             log.error("Buffer given to PacketManager is for a type of packet that is not managed")
             return
-        return packet_types[packet_id].from_bytes(buffer[len(int.to_bytes(packet_id)):])
+        return packet_types[packet_id].from_bytes(buffer[4:])
 
+class Packet:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_bytes(buffer : bytes):
+        raise NotImplementedError()
+
+    def to_bytes(self):
+        raise NotImplementedError()
+
+    def execute(self):
+        raise NotImplementedError()
+PacketManager.register(Packet)
