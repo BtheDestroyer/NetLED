@@ -65,7 +65,7 @@ def master_server(s : socket.socket):
             log.info("[MASTER] New connection from %s" % (addr[0]))
             c.settimeout(0.01)
             global next_id
-            thread = threading.Thread(target=handle_client, args=(len(next_id, c),))
+            thread = threading.Thread(target=handle_client, args=(next_id, c,))
             connections.append(thread)
             thread.start()
             next_id += 1
