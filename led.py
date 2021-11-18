@@ -47,7 +47,14 @@ def show():
     if not is_initialized():
         log.error("Tried to show when strip is not initialized")
         return
+    global awaiting_show
     awaiting_show = True
+
+def main_thread_update():
+    global awaiting_show
+    if awaiting_show:
+        global strip
+        strip.show()
 
 class Set_Pixel_Packet(net.Packet):
     def __init__(self, pixel : int = 0, color : int = 0, show : bool = True):
