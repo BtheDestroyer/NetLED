@@ -23,21 +23,36 @@ def handle_packets(buffer : bytes):
         packet_lock.release()
         buffer = remainingbuffer
 
-def handle_connection(connection_id, connection, addr, last_message_time):
+def update_connection(connection_id, connection, last_message_time):
     try:
         log.verbose("[%6d] Awaiting packet..." % (connection_id))
         buffer = connection.recv(net.config["buffer_size"])
         if len(buffer) > 0:
             log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
-            thread = threading.Thread(target=handle_packets, args=(buffer,))
-            thread.start()
-            threads.append(thread)
+            handle_packets(buffer)
             connection.send(net.Heartbeat_Packet().to_bytes())
             return True, time.time()
         else:
             return False, last_message_time
     except socket.timeout:
         return True, last_message_time
+
+def handle_client(id, c):
+    global connections
+    keep_alive = True
+    timeout = False
+    last_message_time = time.time()
+    while keep_alive:
+        requesting_keep_alive, last_message_time = update_connection(id, c, last_message_time)
+        time_delta = time.time() - last_message_time
+        timeout = time_delta > net.config["connection_timeout"]
+        keep_alive &= requesting_keep_alive or not timeout
+    reason = "Unknown reason"
+    if timeout:
+        reason = "Connection timed out; too long since last message"
+    elif not keep_alive:
+        reason = "Connection closed by the client"
+    log.info("[MASTER] Connection %d closed (%s)" % (id, reason))
 
 def master_server(s : socket.socket):
     if s is None:
@@ -50,7 +65,9 @@ def master_server(s : socket.socket):
             log.info("[MASTER] New connection from %s" % (addr[0]))
             c.settimeout(0.01)
             global next_id
-            connections.append([next_id, c, addr, time.time()])
+            thread = threading.Thread(target=handle_client, args=(len(next_id, c),))
+            connections.append(thread)
+            thread.start()
             next_id += 1
     except socket.timeout:
         pass
@@ -73,26 +90,8 @@ def main():
     global packets
     while running:
         master_server(master_socket)
-        for c in connections:
-            give_focus = True
-            keep_alive = False
-            timeout = False
-            while give_focus:
-                requesting_keep_alive, last_message_time = handle_connection(*c)
-                c[3] = last_message_time
-                time_delta = time.time() - last_message_time
-                timeout = time_delta > net.config["connection_timeout"]
-                keep_alive |= requesting_keep_alive
-                keep_alive &= not timeout
-                give_focus = keep_alive and time_delta < 0.01
-            if not keep_alive:
-                reason = "Unknown reason"
-                if timeout:
-                    reason = "Connection timed out; too long since last message"
-                elif not keep_alive:
-                    reason = "Connection closed by the client"
-                log.info("[MASTER] Connection %d closed (%s)" % (c[0], reason))
-                connections.remove(c)
+        #for c in connections:
+        #    handle_client(c[0])
         if len(packets) > 0:
             packet_lock.acquire()
             packets_copy = packets.copy()
@@ -107,6 +106,7 @@ def main():
     for connection in connections:
         log.info("[MASTER] Joining connection %d..." % (connection[0]))
         connection[1].close()
+        connection[3].join()
     master_socket.close()
     log.info("Done!")
 
