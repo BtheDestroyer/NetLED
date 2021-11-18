@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import rpi_ws281x
 import log, project, net, led
 import argparse
 import socket
