@@ -32,6 +32,7 @@ class PacketManager:
         global packet_types
         log.info("Registering packet type %s as id %d" % (packet.__name__, len(packet_types)))
         packet_types.append(packet)
+        return packet
 
     @staticmethod
     def get_packet_id(packet):
