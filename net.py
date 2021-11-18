@@ -78,7 +78,7 @@ class Heartbeat_Packet(Packet):
 
     @staticmethod
     def from_bytes(buffer : bytes):
-        return Heartbeat_Packet()
+        return Heartbeat_Packet(), buffer
 
     def to_bytes(self):
         packet_id = PacketManager.get_packet_id(self)
@@ -100,7 +100,7 @@ class Sleep_Packet(Packet):
     def from_bytes(buffer : bytes):
         packet = Sleep_Packet()
         packet.time = struct.unpack("f", buffer[0:4])
-        return buffer[4:]
+        return packet, buffer[4:]
 
     def to_bytes(self):
         packet_id = PacketManager.get_packet_id(self)

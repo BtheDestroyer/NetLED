@@ -190,6 +190,39 @@ class Shift_Pixels_Packet(net.Packet):
     def execute(self):
         shift_pixels(self.start, self.count, self.shift, self.show)
 
+@net.PacketManager.register
+class Show_Packet(net.Packet):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def from_bytes(buffer : bytes):
+        packet = Shift_Pixels_Packet()
+        packet.start = int.from_bytes(buffer[0:4], 'little', signed=True)
+        log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
+        packet.count = int.from_bytes(buffer[4:8], 'little', signed=True)
+        log.verbose("Decoded packet.count: %s => %d" % (buffer[4:8], packet.count))
+        packet.shift = int.from_bytes(buffer[8:12], 'little', signed=True)
+        log.verbose("Decoded packet.shift: %s => %x" % (buffer[8:12], packet.shift))
+        packet.show = bool.from_bytes(buffer[12:13], 'little')
+        log.verbose("Decoded packet.show: %s => %s" % (buffer[12:13], packet.show))
+        return packet, buffer[13:]
+
+    def to_bytes(self):
+        packet_id = net.PacketManager.get_packet_id(self)
+        if packet_id is None:
+            log.error("Couldn't get packet id for Set_Pixel_Packet")
+            return
+        buffer = packet_id.to_bytes(4, 'little')
+        buffer += self.start.to_bytes(4, 'little', signed=True)
+        buffer += self.count.to_bytes(4, 'little', signed=True)
+        buffer += self.shift.to_bytes(4, 'little', signed=True)
+        buffer += self.show.to_bytes(1, 'little')
+        return buffer
+
+    def execute(self):
+        shift_pixels(self.start, self.count, self.shift, self.show)
+
 def initialize():
     log.info("Initializing LED strip")
     if is_initialized():

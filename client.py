@@ -74,18 +74,14 @@ def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : 
     wait_ms = float(wait_ms)
     length = int(length)
     log.info("Pulsing...")
-    buffer = bytes()
     for i in range(led.config["count"] + length):
+        buffer = bytes()
         buffer += led.Shift_Pixels_Packet(0, led.config["count"], 1).to_bytes()
         if i < length:
             buffer += led.Set_Pixel_Packet(0, led.color(r, g, b)).to_bytes()
-        if len(buffer) >= net.config["buffer_size"] / 4:
-            s.send(buffer)
-            buffer = bytes()
+        s.send(buffer)
         buffer += net.Sleep_Packet(wait_ms / 1000.0).to_bytes()
         time.sleep(wait_ms / 1000.0)
-    if len(buffer) >= 0:
-        s.send(buffer)
     time.sleep(1)
     s.close()
 
