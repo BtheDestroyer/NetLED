@@ -6,7 +6,6 @@ import signal
 import time
 import threading
 
-packet_lock = threading.Lock()
 packets = []
 threads = []
 running = True
@@ -18,9 +17,7 @@ def handle_packets(buffer : bytes):
     global packets
     while len(buffer) > 0:
         packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-        packet_lock.acquire()
         packets.append(packet)
-        packet_lock.release()
         buffer = remainingbuffer
 
 def handle_connection(connection_id, connection, addr, last_message_time):
@@ -81,10 +78,8 @@ def main():
                 keep_alive &= timeout
                 give_focus = keep_alive and timeout < 0.01
                 if len(packets) > 0:
-                    packet_lock.acquire()
                     packets_copy = packets.copy()
                     packets.clear()
-                    packet_lock.release()
                     for packet in packets_copy:
                         packet.execute()
                     led.main_thread_update()

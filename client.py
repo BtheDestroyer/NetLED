@@ -107,7 +107,6 @@ def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : 
     if len(buffer) > 0:
         s.send(buffer)
 
-
 subcommands = {
     "demo": demo,
     "setpixel": setpixel,
@@ -153,7 +152,6 @@ def main():
         else:
             log.error("There is no subcommand named \"%s\"" % (args.subcommand))
         return
-    
 
 if __name__ == "__main__":
     main()
