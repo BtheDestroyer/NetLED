@@ -44,13 +44,16 @@ def main():
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
     s = net.host_socket(args.port)
+    s.settimeout(1)
     if s is None:
         log.error("[MASTER] Failed to host!")
         return
     while running:
+        log.verbose("[MASTER] Awaiting connection...")
         c, addr = s.accept()
-        log.info("[MASTER] New connection from %s" % (addr[0]))
-        _thread.start_new_thread(handle_connection, (c, addr))
+        if c is not None:
+            log.info("[MASTER] New connection from %s" % (addr[0]))
+            _thread.start_new_thread(handle_connection, (c, addr))
     log.info("[MASTER] Closing server...")
     s.close()
     log.info("Done!")
