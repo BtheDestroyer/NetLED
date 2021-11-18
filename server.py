@@ -8,7 +8,6 @@ import threading
 
 packet_lock = threading.Lock()
 packets = []
-threads = []
 running = True
 connections = []
 next_id = 0
@@ -66,7 +65,7 @@ def master_server(s : socket.socket):
             c.settimeout(0.01)
             global next_id
             thread = threading.Thread(target=handle_client, args=(next_id, c,))
-            connections.append(thread)
+            connections.append((thread, next_id, c))
             thread.start()
             next_id += 1
     except socket.timeout:
@@ -101,12 +100,10 @@ def main():
                 packet.execute()
             led.main_thread_update()
     log.info("[MASTER] Closing server...")
-    for thread in threads:
-        thread.join()
     for connection in connections:
-        log.info("[MASTER] Joining connection %d..." % (connection[0]))
-        connection[1].close()
-        connection[3].join()
+        log.info("[MASTER] Joining connection %d..." % (connection[1]))
+        connection[2].close()
+        connection[0].join()
     master_socket.close()
     log.info("Done!")
 
