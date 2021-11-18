@@ -4,11 +4,24 @@ import argparse
 import socket
 import signal
 import time
+import threading
 
+packet_lock = threading.Lock()
 packets = []
+threads = []
 running = True
 connections = []
 next_id = 0
+
+def handle_packets(buffer : bytes):
+    global packet_lock
+    global packets
+    while len(buffer) > 0:
+        packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
+        packet_lock.acquire()
+        packets.append(packet)
+        packet_lock.release()
+        buffer = remainingbuffer
 
 def handle_connection(connection_id, connection, addr, last_message_time):
     try:
@@ -16,11 +29,7 @@ def handle_connection(connection_id, connection, addr, last_message_time):
         buffer = connection.recv(net.config["buffer_size"])
         if len(buffer) > 0:
             log.info("[%6d] Handling buffer (%d bytes)" % (connection_id, len(buffer)))
-            global packets
-            while len(buffer) > 0:
-                packet, remainingbuffer = net.PacketManager.parse_buffer(buffer)
-                packets.append(packet)
-                buffer = remainingbuffer
+            threads.append(threading.Thread(target=handle_packets, args=(buffer,)))
             connection.send(net.Heartbeat_Packet().to_bytes())
             return True, time.time()
         else:
@@ -72,9 +81,12 @@ def main():
                 keep_alive &= timeout
                 give_focus = keep_alive and timeout < 0.01
                 if len(packets) > 0:
-                    for packet in packets:
-                        packet.execute()
+                    packet_lock.acquire()
+                    packets_copy = packets.copy()
                     packets.clear()
+                    packet_lock.release()
+                    for packet in packets_copy:
+                        packet.execute()
                     led.main_thread_update()
             if not keep_alive:
                 reason = "Unknown reason"
@@ -85,6 +97,8 @@ def main():
                 log.info("[MASTER] Connection %d closed (%s)" % (c[0], reason))
                 connections.remove(c)
     log.info("[MASTER] Closing server...")
+    for thread in threads:
+        thread.join()
     for connection in connections:
         log.info("[MASTER] Joining connection %d..." % (connection[0]))
         connection[1].close()
