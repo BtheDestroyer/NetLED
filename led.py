@@ -1,4 +1,3 @@
-import rpi_ws281x
 import log, net
 
 import cfg
@@ -8,6 +7,7 @@ strip = None
 awaiting_show = False
 
 def is_initialized():
+    global initialized
     return initialized
 
 def set_pixel(index : int, color : int, show_now : bool = False):
@@ -123,21 +123,28 @@ class Set_Pixels_Packet(net.Packet):
     def execute(self):
         set_pixels(self.start, self.count, self.color, self.show)
 
-# Initialization
-log.info("Initializing LED strip")
-if is_initialized():
-    log.warning("Strip already initialized. Reinitializing")
-strip = rpi_ws281x.PixelStrip(
-    config["count"],
-    config["pin"],
-    config["freq"],
-    config["dma"],
-    config["invert"],
-    config["brightness"],
-    config["channel"])
-if strip is None:
-    log.error("Failed to construct LED strip!")
-else:
-    strip.begin()
-    initialized = True
-    log.info("Initialized LEDs!")
+def initialize():
+    log.info("Initializing LED strip")
+    if is_initialized():
+        log.warning("Strip already initialized. Reinitializing")
+    try:
+        __import__(rpi_ws281x)
+        global strip
+        strip = rpi_ws281x.PixelStrip(
+            config["count"],
+            config["pin"],
+            config["freq"],
+            config["dma"],
+            config["invert"],
+            config["brightness"],
+            config["channel"])
+        if strip is None:
+            log.error("Failed to construct LED strip!")
+        else:
+            strip.begin()
+            global initialized
+            initialized = True
+            log.info("Initialized LEDs!")
+    except ImportError:
+        log.critical("Can't import the module `rpi_ws281x`. Make sure this is running on a Raspberry Pi with it installed")
+        raise
