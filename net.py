@@ -1,6 +1,7 @@
 import log
 import socket
 import struct
+import time
 
 import cfg
 config = cfg.config["net"]
@@ -77,18 +78,18 @@ class Heartbeat_Packet(Packet):
 
     @staticmethod
     def from_bytes(buffer : bytes):
-        return buffer
+        return Heartbeat_Packet()
 
     def to_bytes(self):
-        return bytes()
-
-    def execute(self):
         packet_id = PacketManager.get_packet_id(self)
         if packet_id is None:
             log.error("Couldn't get packet id for Heartbeat_Packet")
             return
         buffer = packet_id.to_bytes(4, 'little')
         return buffer
+
+    def execute(self):
+        pass
 
 @PacketManager.register
 class Sleep_Packet(Packet):
@@ -107,8 +108,8 @@ class Sleep_Packet(Packet):
             log.error("Couldn't get packet id for Sleep_Packet")
             return
         buffer = packet_id.to_bytes(4, 'little')
-        buffer = bytes(struct.pack("f", self.time))
+        buffer += struct.pack("f", self.time)
         return buffer
 
     def execute(self):
-        pass
+        time.sleep(self.time)
