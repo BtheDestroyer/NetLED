@@ -55,11 +55,11 @@ class Set_Pixel_Packet(net.Packet):
     def from_bytes(buffer : bytes):
         packet = Set_Pixel_Packet()
         packet.pixel = int.from_bytes(buffer[0:4], 'little')
-        log.info("Decoded packet.pixel: %s => %d" % (buffer[0:4], packet.pixel))
+        log.verbose("Decoded packet.pixel: %s => %d" % (buffer[0:4], packet.pixel))
         packet.color = int.from_bytes(buffer[4:8], 'little')
-        log.info("Decoded packet.color: %s => %d" % (buffer[4:8], packet.color))
+        log.verbose("Decoded packet.color: %s => %d" % (buffer[4:8], packet.color))
         packet.show = bool.from_bytes(buffer[8:9], 'little')
-        log.info("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
+        log.verbose("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
         return packet, buffer[9:]
 
     def to_bytes(self):
@@ -67,24 +67,13 @@ class Set_Pixel_Packet(net.Packet):
         if packet_id is None:
             log.error("Couldn't get packet id for Set_Pixel_Packet")
             return
-        log.info("Encoding packet_id: %d" % (packet_id))
         buffer = packet_id.to_bytes(4, 'little')
-        log.info("to_bytes result buffer: %s" % (buffer))
-        log.info("Encoding self.pixel: %d" % (self.pixel))
         buffer += self.pixel.to_bytes(4, 'little')
-        log.info("to_bytes result buffer: %s" % (buffer))
-        log.info("Encoding self.color: %x" % (self.color))
         buffer += self.color.to_bytes(4, 'little')
-        log.info("to_bytes result buffer: %s" % (buffer))
-        log.info("Encoding self.show: %s" % (self.show))
         buffer += self.show.to_bytes(1, 'little')
-        log.info("to_bytes result buffer: %s" % (buffer))
         return buffer
 
     def execute(self):
-        log.info("DEBUGGING self.pixel: %d" % (self.pixel))
-        log.info("DEBUGGING self.color: %x" % (self.color))
-        log.info("DEBUGGING self.show: %s" % (self.show))
         set_pixel(self.pixel, self.color, self.show)
 net.PacketManager.register(Set_Pixel_Packet)
 
