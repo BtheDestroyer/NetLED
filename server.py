@@ -2,20 +2,14 @@
 import rpi_ws281x
 import log, project, net, led
 import argparse
-import _thread, threading, socket
+import threading, socket
 import signal, sys
 
-connection_lock = threading.Lock()
-connections = []
 packet_lock = threading.Lock()
 packets = []
 running = True
 
-def handle_connection(connection, addr):
-    connection_lock.acquire()
-    connections.append(connection)
-    connection_id = len(connections) - 1
-    connection_lock.release()
+def handle_connection(connection, addr, connection_id):
     connection.settimeout(10)
     connection_alive = True
     try:
@@ -37,25 +31,30 @@ def handle_connection(connection, addr):
         pass
     connection.close()
     log.info("[%d] Connection closed with %s" % (connection_id, addr[0]))
-    connection_lock.acquire()
-    connections[connection_id] = None
-    connection_lock.release()
 
 def master_server(s : socket.socket):
     s.settimeout(1)
     if s is None:
         log.error("[MASTER] Failed to host!")
         return
+    connections = []
+    next_id = 0
     while running:
         log.verbose("[MASTER] Awaiting connection...")
         try:
             c, addr = s.accept()
             if c is not None:
                 log.info("[MASTER] New connection from %s" % (addr[0]))
-                _thread.start_new_thread(handle_connection, (c, addr))
+                c_thread = threading.Thread(target=handle_connection, args=(c, addr, next_id))
+                c_thread.start()
+                connections.append((next_id, c_thread, addr))
+                next_id += 1
         except socket.timeout:
             pass
     log.info("[MASTER] Closing server...")
+    for connection in connections:
+        log.info("[MASTER] Joining connection %d..." % (connection[0]))
+        connection[1].join()
     s.close()
 
 def main():
@@ -64,14 +63,16 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
-    master_thread_id = _thread.start_new_thread(master_server, (net.host_socket(args.port),))
+    master_thread =threading.Thread(target=master_server, args=(net.host_socket(args.port),))
     while running:
         global packets
         if len(packets) > 0:
             packet_lock.acquire()
-            for packet in packets:
-                packet.execute()
+            packets_copy = packets
             packet_lock.release()
+            packets.clear()
+            for packet in packets_copy:
+                packet.execute()
         led.main_thread_update()
     log.info("Done!")
 
