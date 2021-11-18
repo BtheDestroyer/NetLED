@@ -27,6 +27,8 @@ def connect_socket(address : str, port : int = default_port):
     return s
 
 class Packet:
+    packet_id = None
+
     def __init__(self):
         pass
 

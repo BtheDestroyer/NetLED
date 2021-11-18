@@ -65,7 +65,8 @@ class Set_Pixel_Packet(net.Packet):
         buffer += self.pixel.to_bytes()
         buffer += self.color.to_bytes()
         return buffer
-net.PacketManager.register(Set_Pixel_Packet)
+Set_Pixel_Packet.packet_id = net.PacketManager.register(Set_Pixel_Packet)
+log.info("Set_Pixel_Packet.packet_id = %d" % (Set_Pixel_Packet.packet_id))
 log.info("len(net.packet_types) = %d" % (len(net.packet_types)))
 
 # Initialization

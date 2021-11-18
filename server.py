@@ -17,22 +17,27 @@ def handle_connection(connection, addr):
     connection_id = len(connections) - 1
     connection_lock.release()
     connection.settimeout(10)
-    log.info("[%d] Awaiting packet..." % (connection_id))
+    connection_alive = True
     try:
-        while True:
+        while connection_alive:
+            log.info("[%d] Awaiting packet..." % (connection_id))
             packet = connection.recv(net.packet_size)
             if len(packet) > 0:
                 log.info("[%d] Handling packet: %s" % (connection_id, packet))
                 net.PacketManager.handle_buffer(packet)
-                log.info("[%d] Awaiting packet..." % (connection_id))
+            else:
+                connection_alive = False
     except socket.timeout:
         pass
+    connection.close()
     log.info("Connection closed with %s" % (addr[0]))
     connection_lock.acquire()
     connections[connection_id] = None
     connection_lock.release()
 
 def main():
+    log.info("Set_Pixel_Packet.packet_id = %d" % (Set_Pixel_Packet.packet_id))
+    log.info("len(net.packet_types) = %d" % (len(net.packet_types)))
     log.info("Starting server for " + project.name + " v" + project.version)
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
