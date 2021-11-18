@@ -47,6 +47,7 @@ def master_server(s : socket.socket):
 def main():
     signal.signal(signal.SIGINT, sigint)
     log.info("Starting server for " + project.name + " v" + project.version)
+    led.initialize()
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
