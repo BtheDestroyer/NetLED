@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import log, project, net, led
+import log, project, net, led, audio
 import argparse
 import time
 import socket
@@ -24,6 +24,16 @@ def setpixels(s : socket.socket, start : str, count: str, r : str, g : str, b : 
     b = int(b)
     log.info("Setting pixels (%d, %d] to (%d, %d, %d)..." % (start, start + count, r, g, b))
     packet = led.Set_Pixels_Packet(start, count, led.color(r,g,b)).to_bytes()
+    s.send(packet)
+    time.sleep(1)
+    s.close()
+
+def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
+    start= int(start)
+    count = int(count)
+    shift = int(shift)
+    log.info("Shifting pixels (%d, %d] to (%d, %d]..." % (start, start + count, start + shift, start + count + shift))
+    packet = led.Shift_Pixels_Packet(start, count, shift).to_bytes()
     s.send(packet)
     time.sleep(1)
     s.close()
@@ -54,10 +64,15 @@ def demo(s : socket.socket):
     s.close()
     log.info("Done!")
 
+def streamaudio(s : socket.socket):
+    speakers = audio.speaker_stream()
+
+
 subcommands = {
     "demo": demo,
     "setpixel": setpixel,
     "setpixels": setpixels,
+    "streamaudio": streamaudio,
 }
 
 def main():

@@ -19,3 +19,8 @@ log:
 net:
   buffer_size: 1024
   default_port: 2425
+
+audio:
+  chunk: 1024
+  channels: 2
+  rate: 44100
