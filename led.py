@@ -121,7 +121,7 @@ class Set_Pixels_Packet(net.Packet):
 
     def execute(self):
         set_pixels(self.start, self.count, self.color, self.show)
-net.PacketManager.register(Set_Pixel_Packet)
+net.PacketManager.register(Set_Pixels_Packet)
 
 # Initialization
 log.info("Initializing LED strip")
