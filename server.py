@@ -70,7 +70,7 @@ def main():
                 c[3] = last_message_time
                 timeout = time.time() - last_message_time < net.config["connection_timeout"]
                 keep_alive &= timeout
-                give_focus = False #keep_alive and timeout_count == 0
+                give_focus = keep_alive and timeout < 0.01
                 if len(packets) > 0:
                     for packet in packets:
                         packet.execute()

@@ -7,7 +7,7 @@ strip = None
 awaiting_show = False
 
 def color(red, green, blue, white=0):
-    return ((white & 0xFF) << 24) | ((red & 0xFF) << 16) | ((green & 0xFF) << 8) | (blue & 0xFF)
+    return ((int(white) & 0xFF) << 24) | ((int(red) & 0xFF) << 16) | ((int(green) & 0xFF) << 8) | (int(blue) & 0xFF)
 
 def is_initialized():
     global initialized

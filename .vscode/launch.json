@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "client.py",
             "console": "integratedTerminal",
-            "args": ["-p2222", "-afairy", "pulse", "100", "0", "0", "10", "10"]
+            "args": ["-afairy", "streamaudio", "34", "100", "0", "0"]
         },
         {
             "name": "Python: Remote Attach",

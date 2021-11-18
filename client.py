@@ -4,6 +4,8 @@ import argparse
 import time
 import socket
 import inspect
+import keyboard
+import numpy
 
 def demo(s : socket.socket):
     log.info("Sending pixel packet 0...")
@@ -54,8 +56,34 @@ def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
     packet = led.Shift_Pixels_Packet(start, count, shift).to_bytes()
     s.send(packet)
 
-def streamaudio(s : socket.socket):
-    speakers = audio.speaker_stream()
+def streamaudio(s : socket.socket, device_id : str, r : str, g : str, b : str):
+    device_id = int(device_id)
+    r = int(r)
+    g = int(g)
+    b = int(b)
+    stream = audio.open_stream(device_id)
+    buffer = bytes()
+    try:
+        while True:
+            frame = numpy.frombuffer(stream.read(audio.config["chunk"]), dtype=numpy.float32)
+            volume = 0
+            for sample in frame:
+                volume = max(volume, abs(sample))
+            log.info("Volume: %f" % (volume,))
+            buffer += led.Shift_Pixels_Packet(0, led.config["count"], 1, True).to_bytes()
+            buffer += led.Set_Pixel_Packet(0, led.color(r * volume, g * volume, b * volume), False).to_bytes()
+            if len(buffer) > net.config["buffer_size"] / 4:
+                s.send(buffer)
+                # Wait for server to tell us to keep going
+                buffer = bytes()
+                #while len(buffer) == 0:
+                #    buffer = s.recv(net.config["buffer_size"])
+    except KeyboardInterrupt:
+        pass
+
+def listaudiodevices(s : socket.socket):
+    for device in audio.list_all_devices():
+        log.info("Index: %d, Name: %s" % (device["index"], device["name"]))
 
 def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : str):
     r = int(r)
@@ -86,6 +114,7 @@ subcommands = {
     "setpixels": setpixels,
     "shiftpixels": shiftpixels,
     "streamaudio": streamaudio,
+    "listaudiodevices": listaudiodevices,
     "pulse": pulse,
 }
 
@@ -97,23 +126,27 @@ def main():
     parser.add_argument("-a", metavar="address", dest="address", type=str, help="Address to connect to", default="localhost", const="localhost", nargs='?')
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to connect with", default=net.config["default_port"])
     args = parser.parse_args()
-    log.info("Connecting to %s:%d" % (args.address, args.port))
-    s = net.connect_socket(args.address, args.port)
-    if s is None:
-        log.error("Failed to connect socket!")
-        return
     if args.subcommand is not None:
         if args.subcommand in subcommands.keys():
             subcommand = subcommands[args.subcommand]
             signature = inspect.signature(subcommand)
             param_count = len(signature.parameters) - 1
             if param_count == len(args.subarguments):
-                subcommand(s, *args.subarguments)
-                # Wait for server to tell us it's done
-                buffer = bytes()
-                while len(buffer) == 0:
-                    buffer = s.recv(net.config["buffer_size"])
-                s.close()
+                log.info("Connecting to %s:%d" % (args.address, args.port))
+                s = net.connect_socket(args.address, args.port)
+                if s is None:
+                    log.error("Failed to connect socket!")
+                    return
+                s.settimeout(10)
+                try:
+                    subcommand(s, *args.subarguments)
+                    # Wait for server to tell us it's done
+                    buffer = bytes()
+                    while len(buffer) == 0:
+                        buffer = s.recv(net.config["buffer_size"])
+                    s.close()
+                except socket.timeout:
+                    log.error("Connection timed out!")
             else:
                 params = list(signature.parameters.keys())[1:]
                 log.error("The subcommand \"%s\" requires %d arguments: %s" % (args.subcommand, param_count, params))
