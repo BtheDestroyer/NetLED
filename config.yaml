@@ -19,6 +19,7 @@ log:
 net:
   buffer_size: 4096
   default_port: 2425
+  connection_timeout: 10
 
 audio:
   chunk: 1024

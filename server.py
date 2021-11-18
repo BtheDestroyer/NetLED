@@ -68,7 +68,7 @@ def main():
             while give_focus:
                 keep_alive, last_message_time = handle_connection(*c)
                 c[3] = last_message_time
-                keep_alive &= time.time() - last_message_time < 10
+                keep_alive &= time.time() - last_message_time < net.config["connection_timeout"]
                 give_focus = False #keep_alive and timeout_count == 0
                 if len(packets) > 0:
                     for packet in packets:
