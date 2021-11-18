@@ -40,8 +40,8 @@ class Packet:
 class PacketManager:
     @staticmethod
     def register(packet : type):
-        log.info("Registering packet type %s as id %d" % (packet.__name__, len(PacketManager.packet_types)))
         global packet_types
+        log.info("Registering packet type %s as id %d" % (packet.__name__, len(packet_types)))
         packet_types.append(packet)
         return len(packet_types) - 1
 
