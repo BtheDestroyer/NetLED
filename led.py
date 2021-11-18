@@ -6,7 +6,6 @@ import cfg
 config = cfg.config["led"]
 initialized = False
 strip = None
-strip_lock = threading.Lock()
 awaiting_show = False
 
 def is_initialized():
@@ -21,10 +20,8 @@ def set_pixel(index : int, color : int, show_now : bool = False):
     if index >= config["count"] or index < 0:
         log.error("Tried to set color of pixel %d hen the strip is only %d pixels long" % (index, config["count"]))
     log.verbose("Setting pixel %d to (%d, %d, %d)" % (index, (color >> 16) & 0xFF, (color >> 8) & 0xFF, (color >> 0) & 0xFF))
-    strip_lock.acquire()
     global strip
     strip.setPixelColor(index, color)
-    strip_lock.release()
     if show_now:
         show()
 
@@ -36,7 +33,6 @@ def set_pixels(start : int, count : int, color : rpi_ws281x.Color, show : bool =
         start += config["count"] 
     if start >= config["count"] or start < 0:
         log.error("Tried to set color of pixels (%d,%d] when the strip is only %d pixels long" % (i, i + count, config["count"]))
-    strip_lock.acquire()
     global strip
     if count >= 0:
         for i in range(start, start + count):
@@ -44,7 +40,6 @@ def set_pixels(start : int, count : int, color : rpi_ws281x.Color, show : bool =
     else:
         for i in range(start + count, start):
             strip.setPixelColor(i, color)
-    strip_lock.release()
     if show:
         show()
 
@@ -52,7 +47,7 @@ def show():
     if not is_initialized():
         log.error("Tried to show when strip is not initialized")
         return
-    strip.show()
+    awaiting_show = True
 
 class Set_Pixel_Packet(net.Packet):
     def __init__(self, pixel : int = 0, color : int = 0, show : bool = True):
