@@ -2,7 +2,7 @@
 import log, project, net, led
 import argparse
 import socket
-import signal, sys
+import signal
 
 packets = []
 running = True
