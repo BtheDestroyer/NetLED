@@ -74,6 +74,7 @@ def main():
             for packet in packets_copy:
                 packet.execute()
         led.main_thread_update()
+    master_thread.join()
     log.info("Done!")
 
 def sigint(sig, frame):
