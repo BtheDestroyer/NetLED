@@ -75,6 +75,7 @@ def main():
                     packets.clear()
                     led.main_thread_update()
             if not keep_alive:
+                log.info("[MASTER] Connection %d closed" % (c[0]))
                 connections.remove(c)
     log.info("[MASTER] Closing server...")
     for connection in connections:
