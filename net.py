@@ -52,7 +52,9 @@ class PacketManager:
         global packet_types
         log.info("packet.packet_id = %d" % (packet.packet_id))
         log.info("len(packet_types) = %d" % (len(packet_types)))
+        log.info("type(packet) = %s" % (type(packet)))
         for i in range(len(packet_types)):
+            log.info("type(packet_types[%d]) = %s" % (i, type(packet_types[i])))
             if type(packet) == type(packet_types[i]):
                 return i
         return None
