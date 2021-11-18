@@ -64,9 +64,9 @@ subcommands = {
 def main():
     log.info("Starting client for " + project.name + " v" + project.version)
     parser = argparse.ArgumentParser()
-    parser.add_argument("address", type=str, help="Address to connect to", default="localhost", const="localhost", nargs='?')
     parser.add_argument("subcommand", type=str, help="Command to send to the server", nargs='?', default="demo", const="demo")
     parser.add_argument("subarguments", type=str, help="Arguments for the subcommand", nargs='*')
+    parser.add_argument("-a", metavar="address", dest="address", type=str, help="Address to connect to", default="localhost", const="localhost", nargs='?')
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to connect with", default=net.default_port)
     args = parser.parse_args()
     log.info("Connecting to %s:%d" % (args.address, args.port))
@@ -82,7 +82,7 @@ def main():
             if param_count == len(args.subarguments):
                 subcommand(s, *args.subarguments)
             else:
-                params = [key for key in signature.parameters.keys() if key != "s"]
+                params = signature.parameters.keys()[1:]
                 log.error("The subcommand \"%s\" requires %d arguments: %s" % (args.subcommand, param_count, params))
         else:
             log.error("There is no subcommand named \"%s\"" % (args.subcommand))
