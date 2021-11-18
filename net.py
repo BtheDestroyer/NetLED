@@ -37,11 +37,7 @@ class PacketManager:
     @staticmethod
     def get_packet_id(packet):
         global packet_types
-        log.info("packet.packet_id = %d" % (packet.packet_id))
-        log.info("len(packet_types) = %d" % (len(packet_types)))
-        log.info("type(packet) = %s" % (type(packet)))
         for i in range(len(packet_types)):
-            log.info("type(packet_types[%d]) = %s" % (i, packet_types[i]))
             if type(packet) == packet_types[i]:
                 return i
         return None
