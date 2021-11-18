@@ -51,7 +51,7 @@ class PacketManager:
         packet_id = int.from_bytes(buffer[0:4], 'little')
         global packet_types
         if len(packet_types) < packet_id:
-            log.error("Buffer given to PacketManager is for a type of packet that is not managed")
+            log.error("Buffer given to PacketManager is for a type of packet that is not managed (%d)" % (packet_id,))
             return
         return packet_types[packet_id].from_bytes(buffer[4:])
 
