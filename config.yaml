@@ -1,5 +1,5 @@
 led:
-  count: 240
+  count: 4 #240
   pin: 18
   freq: 800000 #800khz
   dma: 10
