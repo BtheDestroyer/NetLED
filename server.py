@@ -65,13 +65,13 @@ def main():
                 c[3] = timeout_count
                 keep_alive &= timeout_count <= 10
                 give_focus = timeout_count == 0
+                if len(packets) > 0:
+                    for packet in packets:
+                        packet.execute()
+                    packets.clear()
+                    led.main_thread_update()
             if not keep_alive:
                 connections.remove(c)
-        if len(packets) > 0:
-            for packet in packets:
-                packet.execute()
-            packets.clear()
-            led.main_thread_update()
     log.info("[MASTER] Closing server...")
     for connection in connections:
         log.info("[MASTER] Joining connection %d..." % (connection[0]))
