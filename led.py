@@ -97,7 +97,7 @@ class Set_Pixels_Packet(net.Packet):
 
     @staticmethod
     def from_bytes(buffer : bytes):
-        packet = Set_Pixel_Packet()
+        packet = Set_Pixels_Packet()
         packet.start = int.from_bytes(buffer[0:4], 'little')
         log.verbose("Decoded packet.start: %s => %d" % (buffer[0:4], packet.start))
         packet.count = int.from_bytes(buffer[4:8], 'little')
