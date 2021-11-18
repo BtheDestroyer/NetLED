@@ -68,7 +68,8 @@ def main():
             while give_focus:
                 keep_alive, last_message_time = handle_connection(*c)
                 c[3] = last_message_time
-                keep_alive &= time.time() - last_message_time < net.config["connection_timeout"]
+                timeout = time.time() - last_message_time < net.config["connection_timeout"]
+                keep_alive &= timeout
                 give_focus = False #keep_alive and timeout_count == 0
                 if len(packets) > 0:
                     for packet in packets:
@@ -76,7 +77,12 @@ def main():
                     packets.clear()
                     led.main_thread_update()
             if not keep_alive:
-                log.info("[MASTER] Connection %d closed" % (c[0]))
+                reason = "Unknown reason"
+                if timeout:
+                    reason = "Connection timed out; too long since last message"
+                elif not keep_alive:
+                    reason = "Connection closed by the client"
+                log.info("[MASTER] Connection %d closed (%s)" % (c[0], reason))
                 connections.remove(c)
     log.info("[MASTER] Closing server...")
     for connection in connections:
