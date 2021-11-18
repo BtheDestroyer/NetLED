@@ -51,6 +51,9 @@ def main():
     parser.add_argument("-p", metavar="port", dest="port", type=int, help="Port to host with", default=net.default_port)
     args = parser.parse_args()
     master_socket = net.host_socket(args.port)
+    if master_socket is None:
+        log.critical("Failed to host server!")
+        return
     master_socket.settimeout(1)
     global packets
     while running:
