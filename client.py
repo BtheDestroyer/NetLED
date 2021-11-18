@@ -26,7 +26,9 @@ def demo(s : socket.socket):
     packet += led.Set_Pixel_Packet(1, led.color(0,0,0)).to_bytes()
     packet += led.Set_Pixel_Packet(2, led.color(0,0,0)).to_bytes()
     s.send(packet)
-    time.sleep(1)
+    # Wait for server to tell us it's done
+    while len(buffer) == 0:
+        buffer = s.recv(net.config["buffer_size"])
     log.info("Closing socket...")
     s.close()
     log.info("Done!")
@@ -39,7 +41,9 @@ def setpixel(s : socket.socket, index : str, r : str, g : str, b : str):
     log.info("Setting pixel %d to (%d, %d, %d)..." % (index, r, g, b))
     packet = led.Set_Pixel_Packet(index, led.color(r,g,b)).to_bytes()
     s.send(packet)
-    time.sleep(1)
+    # Wait for server to tell us it's done
+    while len(buffer) == 0:
+        buffer = s.recv(net.config["buffer_size"])
     s.close()
 
 def setpixels(s : socket.socket, start : str, count: str, r : str, g : str, b : str):
@@ -51,7 +55,9 @@ def setpixels(s : socket.socket, start : str, count: str, r : str, g : str, b : 
     log.info("Setting pixels (%d, %d] to (%d, %d, %d)..." % (start, start + count, r, g, b))
     packet = led.Set_Pixels_Packet(start, count, led.color(r,g,b)).to_bytes()
     s.send(packet)
-    time.sleep(1)
+    # Wait for server to tell us it's done
+    while len(buffer) == 0:
+        buffer = s.recv(net.config["buffer_size"])
     s.close()
 
 def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
@@ -61,7 +67,9 @@ def shiftpixels(s : socket.socket, start : str, count: str, shift :str):
     log.info("Shifting pixels (%d, %d] by %d..." % (start, start + count, shift))
     packet = led.Shift_Pixels_Packet(start, count, shift).to_bytes()
     s.send(packet)
-    time.sleep(1)
+    # Wait for server to tell us it's done
+    while len(buffer) == 0:
+        buffer = s.recv(net.config["buffer_size"])
     s.close()
 
 def streamaudio(s : socket.socket):
@@ -86,9 +94,11 @@ def pulse(s : socket.socket, r : str, g : str, b : str, wait_ms : str, length : 
             # Wait for server to tell us to keep going
             while len(buffer) == 0:
                 buffer = s.recv(net.config["buffer_size"])
-    if len(buffer) > net.config["buffer_size"] / 4:
+    if len(buffer) > 0:
         s.send(buffer)
-    time.sleep(1)
+    # Wait for server to tell us it's done
+    while len(buffer) == 0:
+        buffer = s.recv(net.config["buffer_size"])
     s.close()
 
 
