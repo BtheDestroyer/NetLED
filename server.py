@@ -24,7 +24,7 @@ def handle_connection(connection_id, connection, addr, timeout_count):
                 buffer = remainingbuffer
             return True, 0
         else:
-            return False
+            return False, timeout_count
     except socket.timeout:
         return True, timeout_count + 1
 
