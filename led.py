@@ -55,8 +55,11 @@ class Set_Pixel_Packet(net.Packet):
     def from_bytes(buffer : bytes):
         packet = Set_Pixel_Packet()
         packet.pixel = int.from_bytes(buffer[0:4], 'little')
+        log.info("Decoded packet.pixel: %s => %d" % (buffer[0:4], packet.pixel))
         packet.color = int.from_bytes(buffer[4:8], 'little')
+        log.info("Decoded packet.color: %s => %d" % (buffer[4:8], packet.color))
         packet.show = bool.from_bytes(buffer[8:9], 'little')
+        log.info("Decoded packet.show: %s => %s" % (buffer[8:9], packet.show))
         return packet, buffer[9:]
 
     def to_bytes(self):
@@ -70,7 +73,7 @@ class Set_Pixel_Packet(net.Packet):
         log.info("Encoding self.pixel: %d" % (self.pixel))
         buffer += self.pixel.to_bytes(4, 'little')
         log.info("to_bytes result buffer: %s" % (buffer))
-        log.info("Encoding self.color: %d" % (self.color))
+        log.info("Encoding self.color: %x" % (self.color))
         buffer += self.color.to_bytes(4, 'little')
         log.info("to_bytes result buffer: %s" % (buffer))
         log.info("Encoding self.show: %s" % (self.show))
